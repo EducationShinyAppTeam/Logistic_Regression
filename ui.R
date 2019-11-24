@@ -1,5 +1,5 @@
 library(shiny)
-library("shinydashboard", lib.loc="/usr/lib64/R/library")
+library(shinydashboard)
 library(png)
 library(shinyBS)
 library(V8)
