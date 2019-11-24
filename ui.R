@@ -12,7 +12,7 @@ library(DT)
 
 library(RColorBrewer)
 #library(car)
-library(rgdal)
+#library(rgdal)
 library(shinyWidgets)
 library(ggplot2)
 library(plotly)
