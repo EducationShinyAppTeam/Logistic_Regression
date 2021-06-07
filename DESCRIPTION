@@ -1,0 +1,23 @@
+Title: Logistic Regression
+ShortName: Logistic Regression
+Date: 2021-05-13
+Lifecycle: experimental
+Authors@R: c(
+    person(given = "Yiyun", family = "Gong", email = "", role = c("aut", "cre")),
+    person(given = "Ruisi", family = "Wang", email = "", role = c("aut")),
+    person(given = "Jiayue", family = "He", email = "jph6197@psu.edu", role = c("aut"))
+  )
+Chapter: Chapter 10
+Description: This app will introduce logistic regression model to you and it 
+             allow you to explore Single Logistic Regression with simulated data and the 
+             Empirical Logit Plot with real datasets.
+LearningObjectives: c(
+    "The student will learn to understand the parameters in the Logistic Regression model",
+    "The student will learn to draw the plot of Logistic Regression model with specific dataset."
+  )
+DisplayMode: Normal
+URL: https://psu-eberly.shinyapps.io/Sample_App
+BugReports: https://github.com/EducationShinyAppTeam/Sample_App/issues
+License: CC-BY-NC-SA-4.0
+Tags: simulation
+Type: Shiny

@@ -3,7 +3,7 @@ library(shinydashboard)
 library(png)
 library(shinyBS)
 library(V8)
-library(shinyjs)
+library(shinyjs) 
 
 #library(discrimARTs)
 library(leaflet)
