@@ -1,7 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(png)
-library(shinyBS)
+library(shinyBS) 
 library(V8)
 library(shinyjs) 
 
@@ -991,15 +991,7 @@ server <- function(input, output,session) {
   
   #####Rlocker observe Event##
   # Gets current page address from the current session
-  getCurrentAddress <- function(session){
-    return(paste0(
-      session$clientData$url_protocol, "//",
-      session$clientData$url_hostname,
-      session$clientData$url_pathname, ":",
-      session$clientData$url_port,
-      session$clientData$url_search
-    ))
-  }
+
   
   # Pulls corresponding answer values from question bank and returns its text
   #bank for question
