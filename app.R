@@ -995,7 +995,7 @@ server <- function(input, output,session) {
   
   # Pulls corresponding answer values from question bank and returns its text
   #bank for question
-  
+   
   bank <- read.csv("questionbank.csv")
   bank = data.frame(lapply(bank, as.character), stringsAsFactors = FALSE)
   bank$Feedback = as.character(bank$Feedback)
