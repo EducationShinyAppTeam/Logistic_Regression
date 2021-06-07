@@ -1,17 +1,17 @@
-id,question,A,B,C,Answer
-1,"When log(p/1-p)=a+bx, what does ""a"" represent?",Log of odds ratio,log of odds when x=0,Change in log of odds for one unit of x,B
-2,"Suppose p is the probability of acceptance of Med school and x is GPA. If log(p/1-p)=a+bx, what does ""b"" represent?",Change in log of odds for one unit of x,odds ratio ,Log of odds ratio,A
-3,"Suppose x=1 for the treatment group and x=0 for the control group. When log(p/1-p)=a+bx, what does ""b"" represent?",log of odds when x=0,Change in odds for one unit of x,Log of odds ratio,C
-4,"Suppose x=1 for the treatment group and x=0 for the control group. When log(p/1-p)=a+bx, what does exp(b) represent?",odds ratio ,Log of odds ratio ,log of odds when x=0,A
-5,"When log(p/1-p)=a+bx and you increase the value of x by one unit, how does the estimated odds change?",by a factor of exp(b),by a factor of - exp(b),by a factor of exp(a),A
-6,"In the simple logistic regression, log(p/1-p)=a+bx, what is ""a"" when p equals 0.5?",a=0.5,a=1,a=0,C
-7,What does log(p/1-p)=a+bx represent?,Odds ratio ,Logistic Regression Model,Log of odds ratio,B
-8,What is the recommended value of g for Hosmer and Lemeshow test?,8,12,10,C
-9,When will the Hosmer and Lemeshow test not apply?,5 covariantes and g=10,12 covariantes and g=10,8 covariantes and g=10,B
-10,When does the residual plot indicate a good model fit?,no pattern and no extremely large residuals,non-linear pattern ,all residual values > 0,A
-11,"A binary logistic model has a dependent variable with two possible values which are labeled ""0"" and ""1""",TRUE,FALSE,,A
-12,"When log(p/1-p)=a+bx, which plot below indicates a negative ""b""?",b1neg1.png,b1pos1.png,,A
-13,"When log(p/1-p)=a+bx, which plot below indicates a positive ""b""?",b1pos2.png,b1neg2.png,,A
-14,"When log(p/1-p)=a+bx, which plot below indicates a negative ""b""?",b1pos3.png,b1neg3.png,,B
-15,Which plot indicates a larger sample size?,smallersample1.png,largersample2.png,,B
-16,Which plot indicates a smaller sample size?,largersample1.png,smallersample2.png,,B
+id,question,A,B,C,Answer,Feedback
+1,"When log(p/1-p)=a+bx, what does ""a"" represent?",Log of odds ratio,log of odds when x=0,Change in log of odds for one unit of x,B,"When all numerical features are zero and the categorical features are at the reference category, the estimated odds are exp(a)"
+2,"Suppose p is the probability of acceptance of Med school and x is GPA. If log(p/1-p)=a+bx, what does ""b"" represent?",Change in log of odds for one unit of x,odds ratio ,Log of odds ratio,A,Be caureful for the difference between b and exp(b); b is the change in log of odds for each additional unit of x while exp(b) is the odds change for each additional unit. 
+3,"Suppose x=1 for the treatment group and x=0 for the control group. When log(p/1-p)=a+bx, what does ""b"" represent?",log of odds when x=0,Change in odds for one unit of x,Log of odds ratio,C,"A change in a feature by one unit changes the odds ratio (multiplicative) by a factor of exp(b), thus b should be the log of odds ratio."
+4,"Suppose x=1 for the treatment group and x=0 for the control group. When log(p/1-p)=a+bx, what does exp(b) represent?",odds ratio ,Log of odds ratio ,log of odds when x=0,A,A change in a feature by one unit changes the odds ratio (multiplicative) by a factor of exp(b) or A change in x by one unit increases the log odds ratio by the value of the corresponding weight.
+5,"When log(p/1-p)=a+bx and you increase the value of x by one unit, how does the estimated odds change?",by a factor of exp(b),by a factor of - exp(b),by a factor of exp(a),A,"If you increase the value of feature x by one unit, the estimated odds change by a factor of exp(b)."
+6,"In the simple logistic regression, log(p/1-p)=a+bx, what is ""a"" when p equals 0.5?",a=0.5,a=1,a=0,C,"When p equals 0.5, the log of odds would be log(0.5/0.5) = log(1) = 0, thus a needs to be 0."
+7,What does log(p/1-p)=a+bx represent?,Odds ratio ,Logistic Regression Model,Log of odds ratio,B,Odds ratio should be exp(b) and log of odds ratio should be b for each additional unit of x.
+8,What is the recommended value of g for Hosmer and Lemeshow test?,8,12,10,C,"g represents the groups, the recommended groups for HL test would be 10."
+9,When will the Hosmer and Lemeshow test not apply?,5 covariantes and g=10,12 covariantes and g=10,8 covariantes and g=10,B,"Since the data is divided into recommended 10 groups, then g = 10. If you have 12 covariates in your model, then g > 12.  The HL test will not take overfitting into account and tends to have low power. The number of subgroups g, is usually g > P + 1"
+10,When does the residual plot indicate a good model fit?,no pattern and no extremely large residuals,non-linear pattern ,all residual values > 0,A,"Ideally, residual values should be equally and randomly spaced around the horizontal axis."
+11,"A binary logistic model has a dependent variable with two possible values which are labeled ""0"" and ""1""",TRUE,FALSE,,A,"Think about the pass/fail example, this can be represented by an indicator variable: 0 and 1. 0 represents fail and 1 represents pass."
+12,"When log(p/1-p)=a+bx, which plot below indicates a negative ""b""?",b1neg1.png,b1pos1.png,,A,"Remember a negative slope indicates that two variables are negatively related. Graphically, the line falls from left to right."
+13,"When log(p/1-p)=a+bx, which plot below indicates a positive ""b""?",b1pos2.png,b1neg2.png,,A,"Remember a positive slope indicates that two variables are positively related. Graphically, the line rises from left to right."
+14,"When log(p/1-p)=a+bx, which plot below indicates a negative ""b""?",b1pos3.png,b1neg3.png,,B,"Remember a negative slope indicates that two variables are negatively related. Graphically, the line falls from left to right."
+15,Which plot indicates a larger sample size?,smallersample1.png,largersample2.png,,B,"Look at the plots carefully, the plot with larger sample size would have more dots."
+16,Which plot indicates a smaller sample size?,largersample1.png,smallersample2.png,,B,"Look at the plots carefully, the plot with smaller sample size would have less dots."
