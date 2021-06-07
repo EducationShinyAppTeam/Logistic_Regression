@@ -1112,33 +1112,7 @@ server <- function(input, output,session) {
   
   renderIcon()
   
-  
-  observeEvent(input$submit,{
-    answer<-isolate(input$answer)
-    statement <- rlocker::createStatement(
-      list(
-        verb = list(
-          display = "answered"
-        ),
-        object = list(
-          id = paste0(getCurrentAddress(session), "#", value$index),
-          name = paste('Question', value$index),
-          description = bank[value$index, 2]
-        ),
-        result = list(
-          success = any(answer == ans[value$index,1]),
-          response = paste(getResponseText(value$index, answer))
-        )
-      )
-    )
-    
-    # Store statement in locker and return status
-    status <- rlocker::store(session, statement)
-    
-    # print(statement) # remove me
-    # print(status) # remove me
-  })
-  
+
   observeEvent(input$restart,{
     updateButton(session, "submit", disabled = FALSE)
     updateButton(session,"restart",disable =FALSE)
