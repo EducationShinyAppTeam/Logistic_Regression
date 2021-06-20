@@ -5,7 +5,7 @@ library(shinyBS)
 library(V8)
 library(shinyjs) 
 
-#library(discrimARTs)
+#library(discrimARTs) 
 library(leaflet)
 library(raster)
 library(DT)
@@ -15,11 +15,13 @@ library(RColorBrewer)
 #library(rgdal)
 library(shinyWidgets)
 library(ggplot2)
-library(plotly)
+library(plotly) 
 library(rlocker)
 
 library(dplyr)
 library(shinycssloaders)
+library(Stat2Data)
+library(boastUtils)
 
 source("helpers.R") 
 
@@ -91,25 +93,7 @@ ui <- dashboardPage(
       tags$style(HTML('#nextButton{background-color: #ffa500')),
       tags$style(HTML('#nextButton{border-color: #ffa500')),
       tags$style(HTML('#reset{background-color: #ffa500')),
-      tags$style(HTML('#reset{border-color: #ffa500')),
-      tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: #ffc04d}")),
-      tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-2 .irs-single, .js-irs-2 .irs-bar-edge, .js-irs-2 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-3 .irs-single, .js-irs-3 .irs-bar-edge, .js-irs-3 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-4 .irs-single, .js-irs-4 .irs-bar-edge, .js-irs-4 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-5 .irs-single, .js-irs-5 .irs-bar-edge, .js-irs-5 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-6 .irs-single, .js-irs-6 .irs-bar-edge, .js-irs-6 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-7 .irs-single, .js-irs-7 .irs-bar-edge, .js-irs-7 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-8 .irs-single, .js-irs-8 .irs-bar-edge, .js-irs-8 .irs-bar {background: #ffc04d")),
-      tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-2 .irs-single, .js-irs-2 .irs-bar-edge, .js-irs-2 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-3 .irs-single, .js-irs-3 .irs-bar-edge, .js-irs-3 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-4 .irs-single, .js-irs-4 .irs-bar-edge, .js-irs-4 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-5 .irs-single, .js-irs-5 .irs-bar-edge, .js-irs-5 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-6 .irs-single, .js-irs-6 .irs-bar-edge, .js-irs-6 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-7 .irs-single, .js-irs-7 .irs-bar-edge, .js-irs-7 .irs-bar {border-color: #ffc04d")),
-      tags$style(HTML(".js-irs-8 .irs-single, .js-irs-8 .irs-bar-edge, .js-irs-8 .irs-bar {border-color: #ffc04d"))
+      tags$style(HTML('#reset{border-color: #ffa500'))
     ),
     tabItems(
       #Adding pre-requisites page to remove background from instructions page
@@ -529,7 +513,22 @@ ui <- dashboardPage(
           class = "hangingindent",
           "Carey, R. (2019). boastUtils: BOAST Utilities, R Package.
                              Available from https://github.com/EducationShinyAppTeam/boastUtils"
-        )
+        ),
+        
+        p(
+          class = "hangingindent",
+          "https://christophm.github.io/interpretable-ml-book/logistic.html"
+        ),
+        
+        p(
+          class = "hangingindent",
+          "https://stats.idre.ucla.edu/r/dae/logit-regression/"
+        ),
+        
+        p(
+          class = "hangingindent",
+          "https://www.klipartz.com/en/search?q=dice"
+        ),
       ) #end of tabItem
     )
   )
@@ -797,7 +796,7 @@ server <- function(input, output,session) {
   })
   
   #####read in datatable############
-  data(MedGPA)
+  data("MedGPA")
   data("Titanic")
   data("Leukemia")
   ###empircal logit plot############
