@@ -1,0 +1,13 @@
+name: Logistic_Regression
+title: Logistic_Regression
+username:
+account: psu-eberly
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1518545
+bundleId: 5433082
+url: https://psu-eberly.shinyapps.io/logistic_regression/
+when: 1641306048.27329
+lastSyncTime: 1641306048.27331
+asMultiple: FALSE
+asStatic: FALSE
