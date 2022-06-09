@@ -7,6 +7,7 @@ library(Stat2Data)
 library(ResourceSelection)
 library(data.table)
 library(shinyBS)
+library(shinyjs)
 
 # Import helper functions
 source("helpers.R")
@@ -38,8 +39,8 @@ ui <- dashboardPage(
     width = 250,
     sidebarMenu(
       id = "pages",
-      menuItem("Prerequisites", tabName = "prereq", icon = icon("book")),
       menuItem("Overview", tabName = "instruction", icon = icon("dashboard")),
+      menuItem("Prerequisites", tabName = "prereq", icon = icon("book")),
       menuItem("Explore", tabName = "explore", icon = icon("wpexplorer")),
       menuItem("Game", tabName = "qqq", icon = icon("gamepad")),
       menuItem("References", tabName = "references", icon = icon("leanpub"))
@@ -55,105 +56,79 @@ ui <- dashboardPage(
   ######### Could be combined but left separate so easily understood#####################
 
   dashboardBody(
-    tags$head(
-      tags$style(HTML("#go{background-color: #ffa500")),
-      tags$style(HTML("#go1{background-color: #ffa500")),
-      tags$style(HTML("#go2{background-color: #ffa500")),
-      tags$style(HTML("#start{background-color: #ffa500")),
-      tags$style(HTML("#submit{color: white")),
-      tags$style(HTML("#goMul{background-color: #ffa500")),
-      tags$style(HTML("#goButton{background-color: #ffa500")),
-      tags$style(HTML("#goButtonMul{background-color: #ffa500")),
-      tags$style(HTML("#submitD{background-color: #ffa500")),
-      tags$style(HTML("#start{border-color:#ffa500")),
-      tags$style(HTML("#go{border-color: #ffa500")),
-      tags$style(HTML("#go1{border-color: #ffa500")),
-      tags$style(HTML("#go2{border-color: #ffa500")),
-      tags$style(HTML("#goMul{border-color: #ffa500")),
-      tags$style(HTML("#goButton{border-color: #ffa500")),
-      tags$style(HTML("#goButtonMul{border-color: #ffa500")),
-      tags$style(HTML("#submitD{border-color: #ffa500")),
-      tags$style(HTML("#begin{background-color: #ffa500")),
-      tags$style(HTML("#begin{border-color: #ffa500")),
-      tags$style(HTML("#challenge{background-color: #ffa500")),
-      tags$style(HTML("#challenge{border-color: #ffa500")),
-      tags$style(HTML("#answer{background-color: #ffa500")),
-      tags$style(HTML("#answer{border-color: #ffa500")),
-      tags$style(HTML("#submit{background-color: #ffa500")),
-      tags$style(HTML("#restart{background-color: #ffa500")),
-      tags$style(HTML("#nextq{background-color: #ffa500")), # D01C1C
-      tags$style(HTML("#submit{border-color: #ffa500")),
-      tags$style(HTML("#nextq{border-color: #ffa500")),
-      tags$style(HTML("#restart{border-color: #ffa500")),
-      tags$style(HTML("#nextButton{background-color: #ffa500")),
-      tags$style(HTML("#nextButton{border-color: #ffa500")),
-      tags$style(HTML("#reset{background-color: #ffa500")),
-      tags$style(HTML("#reset{border-color: #ffa500"))
-    ),
     tabItems(
       # Adding pre-requisites page to remove background from instructions page
 
+     
+      tabItem(
+        tabName = "instruction",
+        tags$a(href = "http://stat.psu.edu/", tags$img(src = "logo.png", align = "left", width = 180)),
+        br(), br(), br(),
+        h1("About"),
+        p("This app allows you to explore how different factors can affect the outcome of the Logistic Regression Model and Empirical Logit Plot."),
+        br(),
+        h1("Instructions"),
+        tags$ol(tags$li("This app includes Single Logistic Regression with simulated data and the Empirical Logit Plot with real datasets."),
+        # h4(tags$li("For each model, adjust the sliders to change the sample size and corresponding beta coefficients."),
+        tags$li("Click New Sample button to generate plot. Watch the change of plot when drag the slider of confidence interval."),
+        tags$li("In Empirical Logit Plot, select interested predictors from the menu and see how the plot changes accordingly"),
+        tags$li("After working with the Explore section, you can start the game to test your understanding of the concepts."),
+        tags$li("Practice the questions in Game Section. For each question you get right, you would get a chance to roll the dice."),
+        tags$li("If the cumulative total for your dice roll reaches 20 within 10 questions, YOU WIN!")
+        ),
+        br(),
+        div(
+          style = "text-align: center",
+          bsButton(inputId = "start", label = "GO!", icon("bolt"), size = "large", class = "circle grow")
+        ),
+        br(),
+        h2("About the data"),
+        p("The datasets and the procedures for the empirical logit plot are adopted from Stat2: Models for a World of Data
+                                       by Cannon, Cobb, Hartlaub, Legler, Lock, Moore, Rossman, and Witmer.  "),
+        br(),
+        br(),
+        h2("Acknowledgements"),
+        p("This app was developed and coded by Yiyun Gong and Ruisi Wang. 
+          This app was updated by Wanyi Su."),
+        br(),
+        br(),
+        br(),
+        div(class = "updated", "Last Update: 06/07/2022 by WS.")
+      ),
+      
       tabItem(
         tabName = "prereq",
-        h3(strong("Logistic Regression Analysis")),
+        h1("Logistic Regression Analysis"),
         br(),
-        h4(tags$li("The logistic regression model explains the relationship
+        p(tags$li("The logistic regression model explains the relationship
                                                 between one (or more) explanatory variable and the binary outcome.")),
         br(),
         withMathJax(),
-        h4(tags$li("In the logistic regression the constant \\(\\beta_0\\)
+        p(tags$li("In the logistic regression the constant \\(\\beta_0\\)
                                                 moves the curve left and right and the slope
                                                 \\(\\beta_1\\) defines the steepness of the curve.")),
         div(style = "font-size: 1.6em", helpText("$${ln({p\\over1-p})} = {\\beta_0+\\beta_1x}$$")),
         # h4(tags$li("Empirical logit plot is used to check the linearity for datasets")),
         # div(style="font-size: 1.6em", helpText('$$logit ( \hat {p} )=log(\frac{\hat p}{1-\hat p})$$')),
         withMathJax(),
-        h4(tags$li("Empirical logit plot is used to check the linearity for datasets.")),
+        p(tags$li("Empirical logit plot is used to check the linearity for datasets.")),
         div(style = "font-size: 1.6em", helpText("$$ {logit ( \\hat p )=log({ \\hat p\\over1-\\hat p})}$$")),
-        h4(tags$li("Deviance Residual and Pearson Residual check the model fit. Best
+        p(tags$li("Deviance Residual and Pearson Residual check the model fit. Best
                                                 results are no patterns or no extremely large residuals ")),
-        h4(tags$li("Hosmer and Lemeshow test check the goodness of fit in the model
+        p(tags$li("Hosmer and Lemeshow test check the goodness of fit in the model
                                                 where data is divided into recommended 10 groups. The p-value can
                                                 determine the significance of the result.")),
         br(),
-        h4(tags$li("Hosmer-Lemeshow Test Statstics")),
+        p(tags$li("Hosmer-Lemeshow Test Statstics")),
         div(style = "font-size: 1.6em", helpText("$${\\sum_{i=1}^g}{\\sum_{j=1}^2}{{(obs_{ij} - exp_{ij})^2}
                                                                             \\over exp_{ij}}$$")),
         br(),
         br(),
-        div(style = "text-align: center", bsButton("start", "Go to the overview",
-          icon("bolt"),
-          style = "danger",
-          size = "large", class = "circle grow"
-        ))
-      ),
-      tabItem(
-        tabName = "instruction",
-        tags$a(href = "http://stat.psu.edu/", tags$img(src = "logo.png", align = "left", width = 180)),
-        br(), br(), br(),
-        h3(strong("About:")),
-        h4("This app allows you to explore how different factors can affect the outcome of the Logistic Regression Model and Empirical Logit Plot."),
-        br(),
-        h3(strong("Instructions:")),
-        h4(tags$li("This app includes Single Logistic Regression with simulated data and the Empirical Logit Plot with real datasets.")),
-        # h4(tags$li("For each model, adjust the sliders to change the sample size and corresponding beta coefficients.")),
-        h4(tags$li("Click New Sample button to generate plot. Watch the change of plot when drag the slider of confidence interval.")),
-        h4(tags$li("In Empirical Logit Plot, select interested predictors from the menu and see how the plot changes accordingly")),
-        h4(tags$li("After working with the Explore section, you can start the game to test your understanding of the concepts.")),
-        h4(tags$li("Practice the questions in Game Section. For each question you get right, you would get a chance to roll the dice.")),
-        h4(tags$li("If the cumulative total for your dice roll reaches 20 within 10 questions, YOU WIN!")),
-        br(),
-        div(
-          style = "text-align: center",
-          bsButton(inputId = "go", label = "Explore", icon("bolt"), style = "danger", size = "large", class = "circle grow")
-        ),
-        br(),
-        h3(strong("Acknowledgements:")),
-        h4("This app was developed and coded by Yiyun Gong and Ruisi Wang."),
-        br(),
-        h3(strong("About the data:")),
-        h4("The datasets and the procedures for the empirical logit plot are adopted from Stat2: Models for a World of Data
-                                       by Cannon, Cobb, Hartlaub, Legler, Lock, Moore, Rossman, and Witmer.  ")
+        div(style = "text-align: center",bsButton(inputId = "go", 
+                                                  label = "Explore", 
+                                                  icon("bolt"),
+                                                  size = "large", class = "circle grow")
+        )
       ),
       tabItem(
         tabName = "explore",
@@ -172,10 +147,10 @@ ui <- dashboardPage(
             # h4(tags$li("")),
             # h4(tags$li("Each Logistic Regression plot is made on a random sample.")),
             # h4(tags$li("After working with the explore section, you can start the game to test your understanding of the concepts.")),
-            h3(strong("Single Logistic Regression")),
-            h4(tags$li("Adjust the sliders to change the sample size and corresponding
-                                                 beta coefficients.")),
-            h4(tags$li("Click 'New Sample' button to generate plot.")),
+            h1("Single Logistic Regression"),
+            tags$ul(tags$li("Adjust the sliders to change the sample size and corresponding
+                                                 beta coefficients."),
+                    tags$li("Click 'New Sample' button to generate plot.")),
             br(),
             sidebarLayout(
               sidebarPanel(
@@ -247,13 +222,13 @@ ui <- dashboardPage(
             # set continue button
             div(
               style = "text-align: center",
-              bsButton(inputId = "go1", label = "Play the game!", icon("bolt"), style = "danger", size = "large", class = "circle grow")
+              bsButton(inputId = "go1", label = "Play the game!", icon("bolt"), size = "large", class = "circle grow")
             )
           ),
           tabPanel(
             ### Emperical Logit Plot
             "Emperical Logit Plot",
-            h3(strong("Emperical Logit Plot")),
+            h1("Emperical Logit Plot"),
             # h4(tags$li("Adjust the sliders to change the sample size and corresponding
             #           beta coefficients.")),
             # h4(tags$li("Click 'New Sample' button to generate plot.")),
@@ -276,9 +251,9 @@ ui <- dashboardPage(
             #
 
             h3("Process of creating an empirical logit plot for quantitative predictors"),
-            h4("1. Divide the range of the predictor into intervals with roughly equal numbers of cases."),
-            h4("2. Compute the mean value of the predictor and the empirical logit for each interval."),
-            h4("3. Plot logit versus the mean value of the predictor, with one point for each interval."),
+            tags$ol(tags$li("Divide the range of the predictor into intervals with roughly equal numbers of cases."),
+                    tags$li("Compute the mean value of the predictor and the empirical logit for each interval."),
+                    tags$li("Plot logit versus the mean value of the predictor, with one point for each interval.")),
             br(),
             #                                        box(width = 6, background = "maroon", title = "How many intervals should we use for the Empirical Logit Plot?",
             #                                            "Two intervals give you a sense of the direction and size of the relationship.
@@ -424,7 +399,7 @@ ui <- dashboardPage(
       ## Game page
       tabItem(
         tabName = "qqq",
-        h2(strong("Game Section")),
+        h1("Game Section"),
         # wellPanel(
         #   style = "background-color: #ffd0d7; border:1px solid #ffb6c1",
         #   tags$li("Practice the following questions. For each question you get right, you would get a chance to roll the dice."),
@@ -479,16 +454,12 @@ ui <- dashboardPage(
             align = "center",
             div(style = "display: inline-block", actionButton(inputId = "submit", label = "Submit")),
             div(style = "display: inline-block;vertical-align:top; width: 30px;", HTML("<br>")),
-            div(style = "display: inline-block", bsButton(inputId = "nextq", label = "Next", style = "danger", disabled = TRUE)),
+            div(style = "display: inline-block", bsButton(inputId = "nextq", label = "Next", disabled = TRUE)),
             div(style = "display: inline-block;vertical-align:top; width: 30px;", HTML("<br>")),
-            div(style = "display: inline-block", bsButton(inputId = "restart", label = "Restart", style = "danger"))
+            div(style = "display: inline-block", bsButton(inputId = "restart", label = "Restart"))
           )
         ),
         width = 300,
-        div(
-          style = "text-align: right",
-          bsButton(inputId = "go2", label = "Continue", icon("bolt"), style = "danger", size = "large", class = "circle grow")
-        )
       ),
 
       # References page
@@ -498,9 +469,30 @@ ui <- dashboardPage(
         h2("References"),
         p(
           class = "hangingindent",
+          "Carey, R. (2019). boastUtils: BOAST Utilities, R Package.
+                             Available from https://github.com/EducationShinyAppTeam/boastUtils"
+        ),
+        p(
+          class = "hangingindent",
           "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create
                              dashboards with 'Shiny', R Package. Available from
                              https://CRAN.R-project.org/package=shinydashboard"
+        ),
+        p(
+          class = "hangingindent",
+          "Dice PNG (2022). Klipartz. 
+                             Available from https://www.klipartz.com/en/search?q=dice"
+        ),
+        p(
+          class = "hangingindent",
+          "Molnar, C. (2022). Interpretable machine learning. 
+                             5.2 Logistic Regression. 
+                             Available from https://christophm.github.io/interpretable-ml-book/logistic.html "
+        ),
+        p(
+          class = "hangingindent",
+          "R DATA ANALYSIS EXAMPLES. UCLA. LOGIT REGRESSION. 
+                             Available from https://stats.idre.ucla.edu/r/dae/logit-regression/"
         ),
         p(
           class = "hangingindent",
@@ -508,23 +500,10 @@ ui <- dashboardPage(
                              analysis.” Journal of Statistical Software, 40, pp. 1-29.
                              Available at http://www.jstatsoft.org/v40/i01/."
         ),
-        p(
-          class = "hangingindent",
-          "Carey, R. (2019). boastUtils: BOAST Utilities, R Package.
-                             Available from https://github.com/EducationShinyAppTeam/boastUtils"
-        ),
-        p(
-          class = "hangingindent",
-          "https://christophm.github.io/interpretable-ml-book/logistic.html"
-        ),
-        p(
-          class = "hangingindent",
-          "https://stats.idre.ucla.edu/r/dae/logit-regression/"
-        ),
-        p(
-          class = "hangingindent",
-          "https://www.klipartz.com/en/search?q=dice"
-        ),
+        br(),
+        br(),
+        br(),
+        boastUtils::copyrightInfo()
       ) # end of tabItem
     )
   )
@@ -557,7 +536,7 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$start, {
-    updateTabItems(session, "pages", "instruction")
+    updateTabItems(session, "pages", "prereq")
   })
 
   observeEvent(input$go1, {

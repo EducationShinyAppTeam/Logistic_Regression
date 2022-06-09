@@ -16,8 +16,8 @@ LearningObjectives: c(
     "The student will learn to draw the plot of Logistic Regression model with specific dataset."
   )
 DisplayMode: Normal
-URL: https://psu-eberly.shinyapps.io/Sample_App
-BugReports: https://github.com/EducationShinyAppTeam/Sample_App/issues
+URL: https://psu-eberly.shinyapps.io/Logistic_Regression
+BugReports: https://github.com/EducationShinyAppTeam/Logistic_Regression/issues
 License: CC-BY-NC-SA-4.0
 Tags: simulation
 Type: Shiny
