@@ -8,6 +8,8 @@ library(Stat2Data)
 library(ResourceSelection)
 library(data.table)
 library(shinyBS)
+library(shinydashboard)
+library(shinyWidgets)
 library(shinyjs)
 library(withr)
 
@@ -23,25 +25,21 @@ source("helpers.R")
 ## Create the app page ----
 ui <- dashboardPage(
   skin = "yellow",
-  ### Create the app header ----
+  ## Create the app header ----
   dashboardHeader(
     title = "Logistic Regression",
+    titleWidth = 250,
+    tags$li(class = "dropdown", actionLink("info", icon("info"))),
     tags$li(
       class = "dropdown",
-      actionLink("info", icon("info"), class = "myClass")
+      boastUtils::surveyLink(name = "Logistic_Regression")
     ),
     tags$li(
       class = "dropdown",
-      boastUtils::surveyLink(name = "App_Template")
-    ),
-    tags$li(
-      class = "dropdown",
-      tags$a(
-        href = "https://shinyapps.science.psu.edu/",
-        icon("home", lib = "font-awesome")
+      tags$a(href = 'https://shinyapps.science.psu.edu/',
+             icon("home")
       )
-    ),
-    titleWidth = 250
+    )
   ),
 
   ### Create the sidebar/left navigation menu ----
@@ -392,15 +390,19 @@ server <- function(input, output, session) {
     )
   })
 
-  observeEvent(input$info, {
-    sendSweetAlert(
-      session = session,
-      title = "Instructions:",
-      text = "This app explores Simple Logistic Regression with simulated data 
-      and real data",
-      type = NULL
-    )
-  })
+  observeEvent(
+    eventExpr = input$info,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        type = "info",
+        title = "Instructions:",
+        text = "This app explores Simple Logistic Regression with simulated data 
+      and real data"
+      )
+    }
+  )
+
   observeEvent(input$go, {
     updateTabItems(session, "pages", "explore")
   })
