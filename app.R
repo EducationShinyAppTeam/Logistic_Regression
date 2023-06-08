@@ -41,31 +41,28 @@ ui <- dashboardPage(
       )
     )
   ),
-
   ### Create the sidebar/left navigation menu ----
   dashboardSidebar(
     width = 250,
     sidebarMenu(
       id = "pages",
-      menuItem("Overview", tabName = "instruction", icon = icon("tachometer-alt")),
+      menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
       menuItem("Prerequisites", tabName = "prereq", icon = icon("book")),
       menuItem("Explore", tabName = "explore", icon = icon("wpexplorer")),
-      menuItem("Game", tabName = "qqq", icon = icon("gamepad")),
+      menuItem("Game", tabName = "game", icon = icon("gamepad")),
       menuItem("References", tabName = "references", icon = icon("leanpub"))
     ),
     tags$div(
-      style = "position: absolute; bottom: 0;",
       class = "sidebar-logo",
       boastUtils::sidebarFooter()
     )
   ),
-
   ### Create the content ----
   dashboardBody(
     tabItems(
       #### Set up the Overview Page ----
       tabItem(
-        tabName = "instruction",
+        tabName = "overview",
         h1("Logistic Regression"),
         p("This app allows you to explore how different factors can affect the 
           outcome of the Logistic Regression Model and Empirical Logit Plot."),
@@ -73,22 +70,26 @@ ui <- dashboardPage(
         h2("Instructions"),
         tags$ol(tags$li("This app includes Single Logistic Regression with simulated 
                         data and the Empirical Logit Plot with real datasets."),
-        tags$li("Click New Sample button to generate plot. Watch the change of 
-                plot when drag the slider of confidence interval."),
-        tags$li("In Empirical Logit Plot, select interested predictors from the 
-                menu and see how the plot changes accordingly"),
+        tags$li("Click the New Sample button to generate the plot. Watch the change 
+                of the plot when dragging the slider of confidence interval."),
+        tags$li("In the Empirical Logit Plot, select desired predictors from 
+                the menu and see how the plot changes accordingly."),
         tags$li("After working with the Explore section, you can start the game 
                 to test your understanding of the concepts."),
-        tags$li("Practice the questions in Game Section. For each question you 
-                get right, you would get a chance to roll the dice."),
+        tags$li("Practice the questions in the Game Section. For each question you 
+                get right, you will get a chance to roll the dice."),
         tags$li("If the cumulative total for your dice roll reaches 20 within 
                 10 questions, YOU WIN!")
         ),
         br(),
         div(
           style = "text-align: center",
-          bsButton(inputId = "start", label = "GO!", icon("bolt"), size = "large", 
-                   class = "circle grow")
+          bsButton(
+            inputId = "goToPrereq", 
+            label = "Prerequisites!", 
+            icon = icon("book"), 
+            size = "large", 
+            class = "circle grow")
         ),
         br(),
         h2("About the data"),
@@ -103,7 +104,12 @@ ui <- dashboardPage(
         br(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 06/16/2022 by WS.")
+        "Cite this app as:",
+        br(),
+        citeApp(),
+        br(),
+        br(),
+        div(class = "updated", "Last Update: 05/24/2023 by SB.")
       ),
       #### Set up the Prerequisites Page ----
       tabItem(
@@ -129,11 +135,15 @@ ui <- dashboardPage(
           tags$li("Hosmer-Lemeshow Test Statstics"),
           div("\\[{\\sum_{i=1}^g}{\\sum_{j=1}^2}{{(obs_{ij} - exp_{ij})^2}}\\]"),
         ),
-        div(style = "text-align: center",bsButton(inputId = "go", 
-                                                  label = "Explore", 
-                                                  icon("bolt"),
-                                                  size = "large", 
-                                                  class = "circle grow")
+        div(
+          style = "text-align: center",
+            bsButton(
+              inputId = "goToExplore", 
+              label = "Explore", 
+              icon = icon("bolt"),
+              size = "large", 
+              class = "circle grow"
+          )
         )
       ),
       #### Set up an Explore Page ----
@@ -147,7 +157,7 @@ ui <- dashboardPage(
             h2("Single Logistic Regression"),
             tags$ul(tags$li("Adjust the sliders to change the sample size and 
                             corresponding beta coefficients."),
-                    tags$li("Click 'New Sample' button to generate plot.")),
+                    tags$li("Click the 'New Sample' button to generate the plot.")),
             br(),
             sidebarLayout(
               sidebarPanel(
@@ -188,8 +198,13 @@ ui <- dashboardPage(
                   selected = "deviance"
                 ),
                 br(),
-                actionButton("goButton", "New Sample", icon("paper-plane"),
-                  class = "btn btn-lg", style = "color: #fff", class = "circle grow"
+                actionButton(
+                  inputId = "newSample", 
+                  label = "New Sample", 
+                  icon = icon("paper-plane"),
+                  class = "btn btn-lg", 
+                  style = "color: #fff", 
+                  class = "circle grow"
                 ),
                 br()
               ),
@@ -221,8 +236,13 @@ ui <- dashboardPage(
             # set continue button
             div(
               style = "text-align: center",
-              bsButton(inputId = "go1", label = "Play the game!", icon("bolt"), 
-                       size = "large", class = "circle grow")
+              bsButton(
+                inputId = "goToGame",
+                label = "Play the game!",
+                icon = icon("bolt"), 
+                size = "large", 
+                class = "circle grow"
+              )
             )
           ),
           ##### Empirical Logit Plot ----
@@ -265,7 +285,6 @@ ui <- dashboardPage(
                 ),
                 br()
               ),
-              
               mainPanel(
                 plotOutput(outputId = "empiricalLogitPlot", width = "100%") %>% 
                   withSpinner(color = "#ffa500")
@@ -274,10 +293,9 @@ ui <- dashboardPage(
           )
         )
       ),
-
       #### Set up a Game page ----
       tabItem(
-        tabName = "qqq",
+        tabName = "game",
         h2("Game Section"),
         br(),
         sidebarLayout(
@@ -287,8 +305,11 @@ ui <- dashboardPage(
             uiOutput("question"),
             uiOutput("options"),
             br(),
-            selectInput("answer", "Select your answer from below", 
-                        c("", "A", "B", "C")),
+            selectInput(
+              inputId = "answer", 
+              label = "Select your answer from below", 
+              choices = c("", "A", "B", "C")
+            ),
             uiOutput("mark"),
             br(),
             uiOutput("Feedback"),
@@ -299,37 +320,62 @@ ui <- dashboardPage(
             br(),
             tags$head(tags$style(HTML(mycss))),
             fluidRow(
-              column(12, align = "center", uiOutput("gamescore")),
-              column(12, align = "center", div(
-                id = "plot-container",
-                tags$img(
-                  src = "spinner.gif",
-                  id = "loading-spinner"
-                ),
-                uiOutput("dice", width = "100%")
-              ))
+              column(
+                width = 12, 
+                align = "center", 
+                uiOutput("gamescore")
+              ),
+              column(
+                width = 12, 
+                align = "center", 
+                div(
+                  id = "plot-container",
+                  tags$img(
+                    src = "spinner.gif",
+                    id = "loading-spinner"
+                  ),
+                  uiOutput("dice", width = "100%")
+                )
+              )
             ),
             br()
           )
         ),
         fluidRow(
-          column(6,
+          column(
+            width = 6,
             align = "center",
-            div(style = "display: inline-block", actionButton(inputId = "submit", 
-                                                              label = "Submit")),
-            div(style = "display: inline-block;vertical-align:top; width: 30px;", 
-                HTML("<br>")),
-            div(style = "display: inline-block", bsButton(inputId = "nextq", 
-                                                          label = "Next", 
-                                                          disabled = TRUE)),
-            div(style = "display: inline-block;vertical-align:top; width: 30px;", 
-                HTML("<br>")),
-            div(style = "display: inline-block", bsButton(inputId = "restart", 
-                                                          label = "Restart"))
+            div(
+              style = "display: inline-block", 
+              actionButton(
+                inputId = "submit", 
+                label = "Submit"
+              )
+            ),
+            div(
+              style = "display: inline-block;vertical-align:top; width: 30px;", 
+              HTML("<br>")
+            ),
+            div(
+              style = "display: inline-block",
+              bsButton(
+                inputId = "nextq", 
+                label = "Next", 
+                disabled = TRUE)
+            ),
+            div(
+              style = "display: inline-block;vertical-align:top; width: 30px;", 
+              HTML("<br>")
+            ),
+            div(
+              style = "display: inline-block",
+              bsButton(
+                inputId = "restart", 
+                label = "Restart")
+            )
           )
         )
       ),
-
       #### Set up a References page ----
       tabItem(
         tabName = "references",
@@ -381,51 +427,73 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
 
   ## Set up info button ----
-  observeEvent(input$infoex, {
-    sendSweetAlert(
-      session = session,
-      title = "Instructions:",
-      text = " Move the sliders to see their effect on the diagnostic plots.",
-      type = NULL
-    )
-  })
-
   observeEvent(
     eventExpr = input$info,
     handlerExpr = {
       sendSweetAlert(
         session = session,
         type = "info",
-        title = "Instructions:",
-        text = "This app explores Simple Logistic Regression with simulated data 
-      and real data"
+        title = "Information",
+        text = "This app explores Simple Logistic Regression with  both simulated 
+        and real data."
       )
     }
   )
 
-  observeEvent(input$go, {
-    updateTabItems(session, "pages", "explore")
-  })
+  observeEvent(
+    eventExpr = input$goToExplore,
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "explore"
+      )
+    }
+  )
 
-  observeEvent(input$start, {
-    updateTabItems(session, "pages", "prereq")
-  })
+  observeEvent(
+    eventExpr = input$goToPrereq,
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "prereq"
+      )
+    }
+  )
 
-  observeEvent(input$go1, {
-    updateTabItems(session, "pages", "qqq")
-  })
+  observeEvent(
+    eventExpr = input$goToGame,
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "game"
+      )
+    }
+  )
 
-  observeEvent(input$go2, {
-    updateTabItems(session, "pages", "references")
-  })
+  observeEvent(
+    eventExpr = input$go2,
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "references"
+      )
+    }
+  )
 
-  observeEvent(input$begin, {
-    updateTabItems(session, "pages", "qqq")
-  })
-
-  observeEvent(input$goMul, {
-    updateTabItems(session, "pages", "Multiple")
-  })
+  observeEvent(
+    eventExpr = input$goMul,
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "pages",
+        selected = "Multiple"
+      )
+    }
+  )
   
   ## Update Response Options for empirical logit plot ----
   observeEvent(
@@ -451,9 +519,9 @@ server <- function(input, output, session) {
           inputId = "yVar", 
           label = "Select Response Y",
           choices = c("Status")
-      ) 
+        ) 
+      }
     }
-  }
   )
   
   ## Update Predictor Options for empirical logit plot ----
@@ -486,29 +554,45 @@ server <- function(input, output, session) {
   )
 
   ## Processing sign ----
-  observeEvent(input$goButtonMul, {
-    withBusyIndicatorServer("goButtonMul", {
-      Sys.sleep(1)
-    })
-  })
+  observeEvent(
+    eventExpr = input$goButtonMul,
+    handlerExpr = {
+      withBusyIndicatorServer(
+        "goButtonMul", 
+        {Sys.sleep(1)}
+      )
+    }
+  )
 
-  observeEvent(input$goButtonMul, {
-    withBusyIndicatorServer("go1Button", {
-      Sys.sleep(1)
-    })
-  })
+  observeEvent(
+    eventExpr = input$goButtonMul,
+    handlerExpr = {
+      withBusyIndicatorServer(
+        "goToGameButton", 
+        {Sys.sleep(1)}
+      )
+    }
+  )
 
-  observeEvent(input$goButtonMul, {
-    withBusyIndicatorServer("go2Button", {
-      Sys.sleep(1)
-    })
-  })
+  observeEvent(
+    eventExpr = input$goButtonMul, 
+    handlerExpr = {
+      withBusyIndicatorServer(
+        "go2Button",
+        {Sys.sleep(1)}
+      )
+    }
+  )
 
-  observeEvent(input$goButton, {
-    withBusyIndicatorServer("goButton", {
-      Sys.sleep(1)
-    })
-  })
+  observeEvent(
+    eventExpr = input$newSample,
+    handlerExpr = {
+      withBusyIndicatorServer(
+        "newSample",
+        {Sys.sleep(1)}
+      )
+    }
+  )
 
 
   ## Plot outputs ----
@@ -528,17 +612,28 @@ server <- function(input, output, session) {
   })
 
   output$logplot <- renderPlotly({
-    input$goButton
+    input$newSample
     df <- isolate(commonDf())
     theme_set(theme_bw())
-    p <- ggplot(aes(x = x, y = y), data = df) +
-      geom_smooth(
-        formula = y ~ x, method = "glm", size = 1, color = "orange",
-        method.args = list(family = "binomial"), se = FALSE
+    p <- ggplot(
+      mapping = aes(x = x, y = y), 
+      data = df
       ) +
-      geom_ribbon(aes(linetype = "confidence interval"),
-        stat = "smooth", method = "glm", alpha = 0.15,
-        level = input$ci, method.args = list(family = "binomial")
+      geom_smooth(
+        formula = y ~ x, 
+        method = "glm", 
+        linewidth = 1, 
+        color = "orange",
+        method.args = list(family = "binomial"), 
+        se = FALSE
+      ) +
+      geom_ribbon(
+        mapping = aes(linetype = "confidence interval"),
+        stat = "smooth", 
+        method = "glm", 
+        alpha = 0.15,
+        level = input$ci, 
+        method.args = list(family = "binomial")
       ) +
       geom_point() +
       ylab("Observed Bernoulli") +
@@ -555,7 +650,7 @@ server <- function(input, output, session) {
   })
 
   output$residualPlot <- renderPlot({
-    input$goButton
+    input$newSample
     df <- isolate(commonDf())
     logit <- glm(y ~ x, family = binomial, data = df)
     if (input$residualType == "pearson") {
@@ -576,7 +671,7 @@ server <- function(input, output, session) {
 
   ## Goodness of fit ----
   HLresult <- function() {
-    input$goButton
+    input$newSample
     df <- isolate(commonDf())
     mod <- glm(y ~ x, data = df, family = binomial)
     hl <- hoslem.test(mod$y, fitted(mod))
@@ -722,7 +817,6 @@ server <- function(input, output, session) {
         },
         alt = "FILL ME IN!!"
       )
-          
     }
  )
 
@@ -731,27 +825,52 @@ server <- function(input, output, session) {
     input$goButtonMul
     df <- isolate(commonDf2())
     theme_set(theme_bw())
-    p <- ggplot(aes(x = x1, y = y), data = df) +
-      geom_smooth(
-        formula = y ~ x1, aes(linetype = "X1's fitted\n probability"), 
-        method = "glm", size = 1, color = "maroon",
-        method.args = list(family = "binomial"), se = FALSE
+    p <- ggplot(
+      mapping = aes(x = x1, y = y),
+      data = df
       ) +
       geom_smooth(
-        formula = y ~ x2, aes(x = x2, y = y, linetype = "X2's fitted\n probability"), 
-        data = df, method = "glm", size = 1, color = "lightblue",
-        method.args = list(family = "binomial"), se = FALSE
+        formula = y ~ x1, 
+        mapping = aes(linetype = "X1's fitted\n probability"), 
+        method = "glm",
+        linewidth = 1,
+        color = "maroon",
+        method.args = list(family = "binomial"),
+        se = FALSE
       ) +
-      geom_ribbon(aes(linetype = "confidence\n interval"),
-        stat = "smooth", method = "glm", alpha = 0.15,
-        level = input$ci2, method.args = list(family = "binomial")
+      geom_smooth(
+        formula = y ~ x2, 
+        mapping = aes(x = x2, y = y, linetype = "X2's fitted\n probability"), 
+        data = df, 
+        method = "glm", linewidth = 1,
+        color = "lightblue",
+        method.args = list(family = "binomial"),
+        se = FALSE
+      ) +
+      geom_ribbon(
+        mapping = aes(linetype = "confidence\n interval"),
+        stat = "smooth", 
+        method = "glm", 
+        alpha = 0.15,
+        level = input$ci2,
+        method.args = list(family = "binomial")
       ) +
       geom_point(color = "maroon") +
-      geom_ribbon(aes(x = x2, y = y, linetype = "confidence\n interval"),
-        data = df, stat = "smooth", method = "glm", alpha = 0.15,
-        level = input$ci2, method.args = list(family = "binomial")
+      geom_ribbon(
+        mapping = aes(x = x2, y = y, linetype = "confidence\n interval"),
+        data = df,
+        stat = "smooth",
+        method = "glm", 
+        alpha = 0.15,
+        level = input$ci2,
+        method.args = list(family = "binomial")
       ) +
-      geom_point(aes(x = x2, y = y), data = df, color = "lightblue", alpha = 0.4) +
+      geom_point(
+        mapping = aes(x = x2, y = y),
+        data = df,
+        color = "lightblue",
+        alpha = 0.4
+      ) +
       ylab("Observed Bernoulli") +
       xlab("explanatory variables") +
       ggtitle("Multiple Logistic Regression \n") +
@@ -981,9 +1100,9 @@ server <- function(input, output, session) {
     # Feedback
     output$Feedback <- renderUI({
       if (any(answer == ans[value$index, 1])) {
-        HTML(paste("Congrats !", bank[value$index, 7], collapse = "\n"))
+        HTML(paste("Congrats!", bank[value$index, 7], collapse = "\n"))
       } else {
-        HTML(paste("Don't give up, try again !", bank[value$index, 7], collapse = "\n"))
+        HTML(paste("Sorry, that is incorrect!", bank[value$index, 7], collapse = "\n"))
       }
     })
   })
@@ -991,24 +1110,39 @@ server <- function(input, output, session) {
   renderIcon()
 
 
-  observeEvent(input$restart, {
-    updateButton(session, "submit", disabled = FALSE)
-    updateButton(session, "restart", disable = FALSE)
-    updateSelectInput(session, "answer", "pick an answer from below", 
-                      c("", "A", "B", "C"))
-    index_list$list <- c(index_list$list, sample(2:14, 13, replace = FALSE))
-    value$index <- 1
-    value$answerbox <- value$index
-    ans <- as.matrix(bank[1:16, 6])
-    index_list <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
-    output$mark <- renderUI({
-      img(src = NULL, width = 30)
-    })
-    output$Feedback <- renderUI({
-      img(src = NULL, width = 30)
-    })
-  })
-
+  observeEvent(
+    eventExpr = input$restart, 
+    handlerExpr = {
+      updateButton(
+        session = session, 
+        inputId = "submit", 
+        disabled = FALSE
+      )
+      updateButton(
+        session = session, 
+        inputId = "restart", 
+        disabled = FALSE
+      )
+      updateSelectInput(
+        session = session, 
+        inputId = "answer", 
+        label = "pick an answer from below",
+        choices = c("", "A", "B", "C")
+      )
+      index_list$list <- c(index_list$list, sample(2:14, 13, replace = FALSE))
+      value$index <- 1
+      value$answerbox <- value$index
+      ans <- as.matrix(bank[1:16, 6])
+      index_list <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
+      output$mark <- renderUI({
+        img(src = NULL, width = 30)
+      })
+      output$Feedback <- renderUI({
+        img(src = NULL, width = 30)
+      })
+    }
+  )
+  
   #### mark at the beginning
   output$mark <- renderUI({
     img(src = NULL, width = 30)
@@ -1060,11 +1194,13 @@ server <- function(input, output, session) {
   output$gameplot1 <- renderUI(
     img(
       src = bank[value$index, 3],
-      width = "100%", height = "107%", style = "text-align: center"
+      width = "100%",
+      height = "107%", 
+      style = "text-align: center"
     )
   )
 
-  ## Draw the Hangman Game  ----
+  ## Dice Icon for quiz  ----
 
   score <- reactiveVal(0)
 
