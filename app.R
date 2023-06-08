@@ -18,6 +18,9 @@ data("MedGPA")
 data("Titanic")
 data("Leukemia")
 
+# Fix issue with missing values and non-finite values
+Titanic <- Titanic[complete.cases(Titanic), ]
+
 # Import helper functions
 source("helpers.R")
 
@@ -383,6 +386,18 @@ ui <- dashboardPage(
         h2("References"),
         p(
           class = "hangingindent",
+          "Attali, D.(2020). 
+            shinyjs: Easily Improve the User Experience of Your Shiny Apps in Seconds. R package version 2.0.0 [R Package]. 
+            Available from https://CRAN.R-project.org/package=shinyjs"
+        ),
+        p(
+          class = "hangingindent",
+          "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
+            (v0.61). [R package]. Available from
+            https://CRAN.R-project.org/package=shinyBS"
+        ),
+        p(
+          class = "hangingindent",
           "Carey, R. (2019). boastUtils: BOAST Utilities, R Package. 
           Available from https://github.com/EducationShinyAppTeam/boastUtils"
         ),
@@ -391,6 +406,18 @@ ui <- dashboardPage(
           "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create 
           dashboards with 'Shiny', R Package. Available from 
           https://CRAN.R-project.org/package=shinydashboard"
+        ),
+        p(
+          class = "hangingindent",
+          "Diez, David M., Christopher D. Barr, and Mine Çetinkaya-Rundel. (2021).
+           Stat2Data: Datasets for Stat2. R package version 2.0.0. Available from
+           https://CRAN.R-project.org/package=Stat2Data."
+        ),
+        p(
+          class = "hangingindent",
+          "Dowle, Matt, and Arun Srinivasan. (2021). data.table: Extension of data.frame. 
+          R package version 1.14.8. Available from https://CRAN.R-project.org/package=data.table."
+          
         ),
         p(
           class = "hangingindent",
@@ -405,6 +432,19 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
+          "Niedballa, Jürgen, and Matthias Lindenborn. (2016). resourceselection: 
+          Resource Selection (Probability) Functions for Use-Availability Data. 
+          R package version 0.3-5. Available from 
+          https://CRAN.R-project.org/package=resourceselection."
+        ),
+        p(
+          class = "hangingindent",
+          "Perrier, V., Meyer, F., and Granjon, D. (2020). shinyWidgets: 
+            Custom Inputs Widgets for Shiny. R package version 0.5.3. Available 
+            from https://CRAN.R-project.org/package=shinyWidgets"
+        ),
+        p(
+          class = "hangingindent",
           "R DATA ANALYSIS EXAMPLES. UCLA. LOGIT REGRESSION. Available from 
           https://stats.idre.ucla.edu/r/dae/logit-regression/"
         ),
@@ -413,6 +453,36 @@ ui <- dashboardPage(
           "Wickham, H. (2011), “The Split-apply-combine strategy for data 
           analysis.” Journal of Statistical Software, 40, pp. 1-29.Available 
           from http://www.jstatsoft.org/v40/i01/."
+        ),
+        p(
+          class = "hangingindent",
+          "Wickham, H., François, R., Henry, L., Müller, K. (2021). dplyr: A 
+            Grammar of Data Manipulation. R package version 1.0.6. Available from
+            https://CRAN.R-project.org/package=dplyr"
+        ),
+        p(
+          class = "hangingindent",
+          "Wickham, H., Chang, W., Henry, L., Pedersen, T.L., Takahashi, K., 
+            Wilke, C., Woo, K., Yutani, H., Dunnington, D.  (2020). ggplot2: 
+            Create Elegant Data Visualisations Using the Grammar of Graphics. R package
+            version 3.3.3. Available from https://CRAN.R-project.org/package=ggplot2"
+        ),
+        p(
+          class = "hangingindent",
+          "Sali, A., and Attali, D. (2020), shinycssloaders: Add Loading
+            Animations to a 'shiny' Ouput While It's Recalculating. (v. 1.0.0)
+            [R Package] Available from https://CRAN.R-project.org/package=shinycssloaders"
+        ),
+        p(
+          class = "hangingindent",
+          "Sievert, C. (2020). plotly: Create Interactive Web Graphics via 'plotly.js'.
+          R package version 4.10.1. Available from  https://CRAN.R-project.org/package=plotly."
+          ),
+        p(
+          class = "hangingindent",
+          "Ushey, Kevin, and Hadley Wickham. 2021. withr: Run Code 'With' Temporarily 
+          Modified Global State. R package version 2.4.2. Available from
+          https://CRAN.R-project.org/package=withr."
         ),
         br(),
         br(),
@@ -633,7 +703,8 @@ server <- function(input, output, session) {
         method = "glm", 
         alpha = 0.15,
         level = input$ci, 
-        method.args = list(family = "binomial")
+        method.args = list(family = "binomial"),
+        formula = y ~ x
       ) +
       geom_point() +
       ylab("Observed Bernoulli") +
@@ -652,7 +723,11 @@ server <- function(input, output, session) {
   output$residualPlot <- renderPlot({
     input$newSample
     df <- isolate(commonDf())
-    logit <- glm(y ~ x, family = binomial, data = df)
+    logit <- glm(
+      formula = y ~ x,
+      family = "binomial",
+      data = df
+      )
     if (input$residualType == "pearson") {
       plot(residuals(logit, type = "pearson"),
         type = "b",
@@ -673,7 +748,11 @@ server <- function(input, output, session) {
   HLresult <- function() {
     input$newSample
     df <- isolate(commonDf())
-    mod <- glm(y ~ x, data = df, family = binomial)
+    mod <- glm(
+      formula = y ~ x,
+      data = df,
+      family = "binomial"
+    )
     hl <- hoslem.test(mod$y, fitted(mod))
     return(hl)
   }
@@ -806,7 +885,7 @@ server <- function(input, output, session) {
               formula = y ~ x,
               method = "lm",
               se = FALSE
-            ) + 
+            ) +
             theme_bw() +
             ylab(paste0("Log Odds(", input$yVar, ")")) +
             xlab(input$xVar) +
@@ -842,7 +921,8 @@ server <- function(input, output, session) {
         formula = y ~ x2, 
         mapping = aes(x = x2, y = y, linetype = "X2's fitted\n probability"), 
         data = df, 
-        method = "glm", linewidth = 1,
+        method = "glm", 
+        linewidth = 1,
         color = "lightblue",
         method.args = list(family = "binomial"),
         se = FALSE
@@ -892,7 +972,11 @@ server <- function(input, output, session) {
   output$multix <- renderPlot({
     input$goButtonMul
     df <- isolate(commonDf2())
-    p <- glm(y ~ x1 + x2, data = df, family = "binomial")
+    p <- glm(
+      formula = y ~ x1 + x2,
+      data = df,
+      family = "binomial"
+      )
     par(mfrow = c(1, 3))
     plot(p,
       which = 1, add.smooth = getOption("add.smooth"),
@@ -909,7 +993,11 @@ server <- function(input, output, session) {
   HLresult2 <- function() {
     input$goButtonMul
     df <- isolate(commonDf2())
-    mod <- glm(y ~ x1 + x2, data = df, family = "binomial")
+    mod <- glm(
+      formula = y ~ x1 + x2,
+      data = df,
+      family = "binomial"
+      )
     hl <- hoslem.test(mod$y, fitted(mod), g = 10)
     return(hl)
   }
