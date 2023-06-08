@@ -1,0 +1,16 @@
+# Things Needed for This Version
+1. Fix Console Messages: 
+    `geom_smooth()` using formula = 'y ~ x'
+    
+    New Messages Found:
+    Warning: Removed 1 rows containing non-finite values (`stat_smooth()`).
+    Warning: Removed 1 rows containing missing values (`geom_point()`).
+    
+2. Figure out where Extra code is supposed to be used.
+    (Multiple Linear Regression? More tabs in the explore page?)
+
+# Ideas for Future Development
+
+1.Improve prereq's(Maybe add collapsable tabs?)
+2.Replace plot pictures for the quiz with rendered plots?
+
