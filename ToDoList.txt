@@ -2,12 +2,16 @@
 1. Fix Console Messages: 
     `geom_smooth()` using formula = 'y ~ x'
     
-    New Messages Found:
+    New Messages Found using Titanic data:
     Warning: Removed 1 rows containing non-finite values (`stat_smooth()`).
     Warning: Removed 1 rows containing missing values (`geom_point()`).
     
 2. Figure out where Extra code is supposed to be used.
     (Multiple Linear Regression? More tabs in the explore page?)
+    
+3. Add appropriate text to Alt arguments.
+
+4. Update References
 
 # Ideas for Future Development
 
