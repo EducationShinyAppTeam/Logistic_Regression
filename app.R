@@ -160,64 +160,68 @@ ui <- dashboardPage(
             h2("Single Logistic Regression"),
             tags$ul(tags$li("Adjust the sliders to change the sample size and 
                             corresponding beta coefficients."),
-                    tags$li("Click the 'New Sample' button to generate the plot.")),
+                    tags$li("Click the 'New Sample' button to generate a new plot.")),
             br(),
-            sidebarLayout(
-              sidebarPanel(
-                sliderInput(
-                  inputId = "sampleSize",
-                  label = "Set sample size:",
-                  min = 2,
-                  max = 300,
-                  value = 150,
-                  step = 1
-                ),
-                sliderInput(
-                  inputId = "b0",
-                  label = "β0 (intercept):",
-                  min = -10,
-                  max = 10,
-                  value = 0
-                ),
-                sliderInput(
-                  inputId = "b1",
-                  label = "β1 (coefficient):",
-                  min = -10,
-                  max = 10,
-                  value = 3
-                ),
-                sliderInput(
-                  inputId = "ci",
-                  label = "confidence interval level:",
-                  min = 0,
-                  max = 0.99,
-                  value = 0.95,
-                  step = 0.01
-                ),
-                selectInput(
-                  inputId = "residualType",
-                  label = "Residual Type",
-                  choices = c("deviance", "pearson"),
-                  selected = "deviance"
-                ),
-                br(),
-                actionButton(
-                  inputId = "newSample", 
-                  label = "New Sample", 
-                  icon = icon("paper-plane"),
-                  class = "btn btn-lg", 
-                  style = "color: #fff", 
-                  class = "circle grow"
-                ),
-                br()
+            fluidRow(
+              column(
+                width = 5,
+                wellPanel(
+                  sliderInput(
+                    inputId = "sampleSize",
+                    label = "Set sample size:",
+                    min = 2,
+                    max = 300,
+                    value = 150,
+                    step = 1
+                  ),
+                  sliderInput(
+                    inputId = "b0",
+                    label = "β0 (intercept):",
+                    min = -10,
+                    max = 10,
+                    value = 0
+                  ),
+                  sliderInput(
+                    inputId = "b1",
+                    label = "β1 (coefficient):",
+                    min = -10,
+                    max = 10,
+                    value = 3
+                  ),
+                  sliderInput(
+                    inputId = "ci",
+                    label = "confidence interval level:",
+                    min = 0,
+                    max = 0.99,
+                    value = 0.95,
+                    step = 0.01
+                  ),
+                  selectInput(
+                    inputId = "residualType",
+                    label = "Residual Type",
+                    choices = c("deviance", "pearson"),
+                    selected = "deviance"
+                  ),
+                  br(),
+                  actionButton(
+                    inputId = "newSample", 
+                    label = "New Sample", 
+                    icon = icon("paper-plane"),
+                    class = "btn btn-lg", 
+                    style = "color: #fff", 
+                    class = "circle grow"
+                  ),
+                  br()
+                )
               ),
-              mainPanel(
+              column(
+                width = 7,
                 plotlyOutput("logplot", width = "98%", height = "300px") %>% 
-                  withSpinner(color = "#ffa500"),
+                  withSpinner(color = boastUtils::psuPalette[4]),
                 br(),
                 tableOutput("citable"),
                 plotOutput("residualPlot", width = "100%", height = "330px") %>% 
-                  withSpinner(color = "#ffa500"),
+                  withSpinner(color =  boastUtils::psuPalette[4]),
                 tags$style(type = "text/css", "#lemeshowTest, #obsexp 
                            {background-color: rgba(249, 105, 14, 1); color: yellow; 
                            text-align: center}", "#title{color: blackl; 
@@ -261,36 +265,38 @@ ui <- dashboardPage(
               tags$li("Plot logit versus the mean value of the predictor, 
                             with one point for each interval.")),
             br(),
-            sidebarLayout(
-              sidebarPanel(
-                #### select datasets
-                selectInput(
-                  inputId = "datatable", label = "Select Dataset:",
-                  choices = c("MedGPA", "Titanic", "Leukemia"),
-                  selected = "MedGPA"
-                ),
-                selectInput(
-                  inputId = "yVar",
-                  label = "Select Response Y",
-                  choices = c("default1")
-                ),
-                selectInput(
-                  inputId = "xVar",
-                  label = "Select Quantitave Predictor",
-                  choices = c("default1", "default2", "default3")
-                ),
-
-              
-                ### number of groups
-                sliderInput("ngroups", "Number of Groups (Intervals):",
-                  min = 2, max = 8,
-                  value = 4, step = 1
-                ),
-                br()
+            fluidRow(
+              column(
+                width = 5,
+                wellPanel(
+                  #### select data sets
+                  selectInput(
+                    inputId = "datatable", label = "Select Dataset:",
+                    choices = c("MedGPA", "Titanic", "Leukemia"),
+                    selected = "MedGPA"
+                  ),
+                  selectInput(
+                    inputId = "yVar",
+                    label = "Select Response Y",
+                    choices = c("default1")
+                  ),
+                  selectInput(
+                    inputId = "xVar",
+                    label = "Select Quantitave Predictor",
+                    choices = c("default1", "default2", "default3")
+                  ),
+                  ### number of groups
+                  sliderInput("ngroups", "Number of Groups (Intervals):",
+                              min = 2, max = 8,
+                              value = 4, step = 1
+                  ),
+                  br()
+                )
               ),
-              mainPanel(
+              column(
+                width = 7,
                 plotOutput(outputId = "empiricalLogitPlot", width = "100%") %>% 
-                  withSpinner(color = "#ffa500")
+                  withSpinner(color =  boastUtils::psuPalette[4])
               )
             )
           )
@@ -301,24 +307,25 @@ ui <- dashboardPage(
         tabName = "game",
         h2("Game Section"),
         br(),
-        sidebarLayout(
-          sidebarPanel(
-            id = "sidebar",
+        fluidRow(
+          column(
             width = 6,
-            uiOutput("question"),
-            uiOutput("options"),
-            br(),
-            selectInput(
-              inputId = "answer", 
-              label = "Select your answer from below", 
-              choices = c("", "A", "B", "C")
+            wellPanel(
+              uiOutput("question"),
+              uiOutput("options"),
+              br(),
+              selectInput(
+                inputId = "answer", 
+                label = "Select your answer from below", 
+                choices = c("", "A", "B", "C")
+              ),
+              uiOutput("mark"),
+              br(),
+              uiOutput("Feedback"),
+              br()
             ),
-            uiOutput("mark"),
-            br(),
-            uiOutput("Feedback"),
-            br()
           ),
-          mainPanel(
+          column(
             width = 6,
             br(),
             tags$head(tags$style(HTML(mycss))),
@@ -364,7 +371,8 @@ ui <- dashboardPage(
               bsButton(
                 inputId = "nextq", 
                 label = "Next", 
-                disabled = TRUE)
+                disabled = TRUE
+              )
             ),
             div(
               style = "display: inline-block;vertical-align:top; width: 30px;", 
@@ -374,7 +382,8 @@ ui <- dashboardPage(
               style = "display: inline-block",
               bsButton(
                 inputId = "restart", 
-                label = "Restart")
+                label = "Restart"
+              )
             )
           )
         )
@@ -677,72 +686,76 @@ server <- function(input, output, session) {
   }
 
   ## common objects ----
-  commonDf <- reactive({
-    df(input$b0, input$b1, input$sampleSize)
-  })
-
-  output$logplot <- renderPlotly({
-    input$newSample
-    df <- isolate(commonDf())
-    theme_set(theme_bw())
-    p <- ggplot(
-      mapping = aes(x = x, y = y), 
-      data = df
-      ) +
-      geom_smooth(
-        formula = y ~ x, 
-        method = "glm", 
-        linewidth = 1, 
-        color = "orange",
-        method.args = list(family = "binomial"), 
-        se = FALSE
-      ) +
-      geom_ribbon(
-        mapping = aes(linetype = "confidence interval"),
-        stat = "smooth", 
-        method = "glm", 
-        alpha = 0.15,
-        level = input$ci, 
-        method.args = list(family = "binomial"),
-        formula = y ~ x
-      ) +
-      geom_point() +
-      ylab("Observed Bernoulli") +
-      xlab("explanatory variables") +
-      ggtitle("Logistic Regression Model \n") +
-      scale_linetype_manual(name = "", values = c("confidence interval")) +
-      theme(
-        text = element_text(size = 12)
-      )
-
-    p <-
-      with_options(list(digits = 1), ggplotly(p)) %>%
-      layout(legend = list(x = 0.05, y = 0.9))
-  })
-
-  output$residualPlot <- renderPlot({
-    input$newSample
-    df <- isolate(commonDf())
-    logit <- glm(
-      formula = y ~ x,
-      family = "binomial",
-      data = df
-      )
-    if (input$residualType == "pearson") {
-      plot(residuals(logit, type = "pearson"),
-        type = "b",
-        main = "Pearson Res- logit", ylab = "Pearson Residual",
-        cex.axis = 1.3, cex.lab = 1.5,
-        cex.main = 1.5, pch = 16, las = 1
-      )
-    } else {
-      plot(residuals(logit, type = "deviance"),
-        type = "b", main = "Deviance Res- logit", ylab = "Deviance Residual",
-        cex.axis = 1.3, cex.lab = 1.5,
-        cex.main = 1.5, pch = 16, las = 1
-      )
+  commonDf <- reactive(
+    x = {
+      df(input$b0, input$b1, input$sampleSize)
     }
-  })
+  )
+  
+  output$logplot <- renderPlotly(
+    expr = {
+      input$newSample
+      df <- isolate(commonDf())
+      theme_set(theme_bw())
+      p <- ggplot(
+        mapping = aes(x = x, y = y), 
+        data = df
+      ) +
+        geom_smooth(
+          formula = y ~ x, 
+          method = "glm", 
+          linewidth = 1, 
+          color = boastUtils::psuPalette[4],
+          method.args = list(family = "binomial"), 
+          se = FALSE
+        ) +
+        geom_ribbon(
+          mapping = aes(linetype = "confidence interval"),
+          stat = "smooth", 
+          method = "glm", 
+          alpha = 0.15,
+          level = input$ci, 
+          method.args = list(family = "binomial"),
+          formula = y ~ x
+        ) +
+        geom_point() +
+        ylab("Observed Bernoulli") +
+        xlab("explanatory variable") +
+        ggtitle("Logistic Regression Model \n") +
+        scale_linetype_manual(name = "", values = c("confidence interval")) +
+        theme(
+          text = element_text(size = 12)
+        )
+      p <- with_options(list(digits = 1), ggplotly(p)) %>%
+        layout(legend = list(x = 0.05, y = 0.9))
+    }
+  )
+  
+  output$residualPlot <- renderPlot(
+    expr = {
+      input$newSample
+      df <- isolate(commonDf())
+      logit <- glm(
+        formula = y ~ x,
+        family = "binomial",
+        data = df
+      )
+      if (input$residualType == "pearson") {
+        plot(residuals(logit, type = "pearson"),
+             type = "b",
+             main = "Pearson Res- logit", ylab = "Pearson Residual",
+             cex.axis = 1.3, cex.lab = 1.5,
+             cex.main = 1.5, pch = 16, las = 1
+        )
+      } else {
+        plot(residuals(logit, type = "deviance"),
+             type = "b", main = "Deviance Res- logit", ylab = "Deviance Residual",
+             cex.axis = 1.3, cex.lab = 1.5,
+             cex.main = 1.5, pch = 16, las = 1
+        )
+      }
+    }
+  )
 
   ## Goodness of fit ----
   HLresult <- function() {
@@ -757,11 +770,13 @@ server <- function(input, output, session) {
     return(hl)
   }
 
-  output$lemeshowTest <- renderPrint({
-    hl <- HLresult()
-    hl
-  })
-
+  output$lemeshowTest <- renderPrint(
+    expr = {
+      hl <- HLresult()
+      hl
+    }
+  )
+  
   output$lemeshowDF <- renderTable(
     {
       hl <- HLresult()
@@ -796,28 +811,12 @@ server <- function(input, output, session) {
     rownames = TRUE
   )
 
-  output$obsexp <- renderPrint({
-    hl <- HLresult()
-    cbind(hl$expected, hl$observed)
-  })
-
-
-
-  ##### Multiple Graph
-  df2 <- function(b0, b1, b2, sampleSize) {
-    x1 <- rnorm(sampleSize)
-    x2 <- rnorm(sampleSize)
-    z <- b0 + b1 * x1 + b2 * x2 # linear combination with a bias
-    pr <- 1 / (1 + exp(-z)) # pass through an inv-logit function
-    y <- rbinom(sampleSize, 1, pr) # bernoulli response variable
-    df <- data.frame(y = y, x1 = x1, x2 = x2)
-    return(df)
-  }
-
-  ########## common objects
-  commonDf2 <- reactive({
-    df2(input$b02, input$b12, input$b2, input$sampleSize2)
-  })
+  output$obsexp <- renderPrint(
+    expr = {
+      hl <- HLresult()
+      cbind(hl$expected, hl$observed)
+    }
+  )
   
   ## Set the Data Collection ----
   dataCollection <- eventReactive(
@@ -894,214 +893,111 @@ server <- function(input, output, session) {
               text = element_text(size = 16)
             )
         },
-        alt = "FILL ME IN!!"
+        alt = paste0("This Empirical logit plot displays the relationship between
+                     Log Odds(", input$yVar, ") and ", input$xVar, ", along with ",
+                     input$ngroups, " intervals on the plot.")
       )
     }
  )
-
-  ### Logistic Regression model ----
-  output$mulPlot <- renderPlotly({
-    input$goButtonMul
-    df <- isolate(commonDf2())
-    theme_set(theme_bw())
-    p <- ggplot(
-      mapping = aes(x = x1, y = y),
-      data = df
-      ) +
-      geom_smooth(
-        formula = y ~ x1, 
-        mapping = aes(linetype = "X1's fitted\n probability"), 
-        method = "glm",
-        linewidth = 1,
-        color = "maroon",
-        method.args = list(family = "binomial"),
-        se = FALSE
-      ) +
-      geom_smooth(
-        formula = y ~ x2, 
-        mapping = aes(x = x2, y = y, linetype = "X2's fitted\n probability"), 
-        data = df, 
-        method = "glm", 
-        linewidth = 1,
-        color = "lightblue",
-        method.args = list(family = "binomial"),
-        se = FALSE
-      ) +
-      geom_ribbon(
-        mapping = aes(linetype = "confidence\n interval"),
-        stat = "smooth", 
-        method = "glm", 
-        alpha = 0.15,
-        level = input$ci2,
-        method.args = list(family = "binomial")
-      ) +
-      geom_point(color = "maroon") +
-      geom_ribbon(
-        mapping = aes(x = x2, y = y, linetype = "confidence\n interval"),
-        data = df,
-        stat = "smooth",
-        method = "glm", 
-        alpha = 0.15,
-        level = input$ci2,
-        method.args = list(family = "binomial")
-      ) +
-      geom_point(
-        mapping = aes(x = x2, y = y),
-        data = df,
-        color = "lightblue",
-        alpha = 0.4
-      ) +
-      ylab("Observed Bernoulli") +
-      xlab("explanatory variables") +
-      ggtitle("Multiple Logistic Regression \n") +
-      scale_linetype_manual(values = c("X1's fitted\n probability", 
-                                       "X2's fitted\n probability", 
-                                       "confidence\n interval")) +
-      theme(
-        plot.title = element_text(color = "black", size = 15, face = "bold"),
-        axis.text = element_text(color = "black", size = 12),
-        axis.title.x = element_text(color = "black", size = 15),
-        axis.title.y = element_text(color = "black", size = 15)
-      )
-
-    p <-
-      ggplotly(p) %>%
-      layout(legend = list("left"))
-  })
-
-  output$multix <- renderPlot({
-    input$goButtonMul
-    df <- isolate(commonDf2())
-    p <- glm(
-      formula = y ~ x1 + x2,
-      data = df,
-      family = "binomial"
-      )
-    par(mfrow = c(1, 3))
-    plot(p,
-      which = 1, add.smooth = getOption("add.smooth"),
-      las = 1, cex.caption = 1.5, cex.axis = 1.3, cex.lab = 1.7
-    )
-    legend("topleft", legend = "fitted line", col = "red", lty = 1:2, cex = 1.5, 
-           box.lty = 0)
-    # second and third plot
-    plot(p, which = c(4, 2), las = 1, cex.caption = 1.5, cex.axis = 1.3, 
-         cex.lab = 1.7)
-  })
-
-  ### Multiple Goodness of fit ----
-  HLresult2 <- function() {
-    input$goButtonMul
-    df <- isolate(commonDf2())
-    mod <- glm(
-      formula = y ~ x1 + x2,
-      data = df,
-      family = "binomial"
-      )
-    hl <- hoslem.test(mod$y, fitted(mod), g = 10)
-    return(hl)
-  }
-
-  output$lemeshowDF2 <- renderTable(
-    {
-      hl <- HLresult2()
-      hs <- data.frame(hl$statistic, hl$parameter, hl$p.value)
-      names(hs) <- c("χ2", "df", "p-value")
-      rownames(hs) <- NULL
-      hs
-    },
-    striped = TRUE,
-    width = "100%",
-    align = "c",
-    hover = TRUE,
-    bordered = TRUE
-  )
-
-  output$obsexpDF2 <- renderTable(
-    {
-      hl <- HLresult2()
-      hob <- data.frame(cbind(hl$expected, hl$observed))
-      hob <- setDT(hob, keep.rownames = TRUE)[]
-      names(hob) <- c(
-        "interval", "number of 0s expected", "number of 1s expected",
-        "number of 0s in group", "number of 1s in group"
-      )
-      hob
-    },
-    striped = TRUE,
-    width = "100%",
-    align = "c",
-    hover = TRUE,
-    bordered = TRUE,
-    rownames = TRUE
-  )
-
-
-
+  
   ## TIMER ----
   timer <- reactiveVal(1)
   active <- reactiveVal(FALSE)
 
   # observer that invalidates every second. If timer is active, decrease by one.
-  observe({
-    invalidateLater(1000, session)
-    isolate({
-      if (active()) {
-        timer(timer() - 1)
-        if (timer() < 1) {
-          active(FALSE)
-
-          randnum <- sample(1:6, 1)
-          newvalue <- score() + isolate(randnum)
-          score(newvalue)
-
-          if (as.numeric(score()) >= 20) {
-            output$dice <- renderUI({
-              Sys.sleep(1)
-              img(src = "congrats.png", width = "60%")
-            })
-            updateButton(session, "nextq", disabled = TRUE)
-            updateButton(session, "submit", disabled = TRUE)
-            updateButton(session, "restart", disabled = FALSE)
-          } else {
-            updateButton(session, "nextq", disabled = FALSE)
-            if (randnum == 1) {
-              output$dice <- renderUI({
-                Sys.sleep(1)
-                img(src = "21.png", width = "30%")
-              })
-            } else if (randnum == 2) {
-              output$dice <- renderUI({
-                Sys.sleep(1)
-                img(src = "22.png", width = "30%")
-              })
-            } else if (randnum == 3) {
-              output$dice <- renderUI({
-                Sys.sleep(1)
-                img(src = "23.png", width = "30%")
-              })
-            } else if (randnum == 4) {
-              output$dice <- renderUI({
-                Sys.sleep(1)
-                img(src = "24.png", width = "30%")
-              })
-            } else if (randnum == 5) {
-              output$dice <- renderUI({
-                Sys.sleep(1)
-                img(src = "25.png", width = "30%")
-              })
-            } else if (randnum == 6) {
-              output$dice <- renderUI({
-                Sys.sleep(1)
-                img(src = "26.png", width = "30%")
-              })
+  observe(
+    x = {
+      invalidateLater(1000, session)
+      isolate(
+        expr = {
+          if (active()) {
+            timer(timer() - 1)
+            if (timer() < 1) {
+              active(FALSE)
+              
+              randnum <- sample(1:6, 1)
+              newvalue <- score() + isolate(randnum)
+              score(newvalue)
+              
+              if (as.numeric(score()) >= 20) {
+                output$dice <- renderUI(
+                  expr = {
+                    Sys.sleep(1)
+                    img(src = "congrats.png", width = "60%")
+                  }
+                )
+                updateButton(
+                  session = session,
+                  inputId = "nextq",
+                  disabled = TRUE
+                )
+                updateButton(
+                  session = session,
+                  inputId = "submit",
+                  disabled = TRUE
+                )
+                updateButton(
+                  session = session,
+                  inputId = "restart",
+                  disabled = FALSE
+                )
+              } else {
+                updateButton(
+                  session = session,
+                  inputId = "nextq",
+                  disabled = FALSE
+                )
+                if (randnum == 1) {
+                  output$dice <- renderUI(
+                    expr = {
+                      Sys.sleep(1)
+                      img(src = "21.png", width = "30%")
+                    }
+                  )
+                } else if (randnum == 2) {
+                  output$dice <- renderUI(
+                    expr = {
+                      Sys.sleep(1)
+                      img(src = "22.png", width = "30%")
+                    }
+                  )
+                } else if (randnum == 3) {
+                  output$dice <- renderUI(
+                    expr = {
+                      Sys.sleep(1)
+                      img(src = "23.png", width = "30%")
+                    }
+                  )
+                } else if (randnum == 4) {
+                  output$dice <- renderUI(
+                    expr = {
+                      Sys.sleep(1)
+                      img(src = "24.png", width = "30%")
+                    }
+                  )
+                } else if (randnum == 5) {
+                  output$dice <- renderUI(
+                    expr = {
+                      Sys.sleep(1)
+                      img(src = "25.png", width = "30%")
+                    }
+                  )
+                } else if (randnum == 6) {
+                  output$dice <- renderUI(
+                    expr = {
+                      Sys.sleep(1)
+                      img(src = "26.png", width = "30%")
+                    }
+                  )
+                }
+              }
             }
           }
         }
-      }
-    })
-  })
-
+      )
+    }
+  )
+  
   # Pulls corresponding answer values from question bank and returns its text
   # bank for question
 
@@ -1121,80 +1017,132 @@ server <- function(input, output, session) {
     return(bank[index, key])
   }
 
-  observeEvent(input$ci, {
-  })
+  observeEvent(
+    eventExpr = input$ci, 
+    handlerExpr = {
+    }
+  )
 
   ## Buttons Handle ----
-  observeEvent(input$nextq, {
-    index_list$list <- index_list$list[!index_list$list %in% value$index]
-    value$index <- index_list$list[1]
-    value$answerbox <- value$index
-
-    updateButton(session, "nextq", disabled = TRUE)
-    updateButton(session, "submit", disabled = FALSE)
-
-    if (value$index %in% c(11:16)) {
-      updateSelectInput(session, "answer", "pick an answer from below", 
-                        c("", "A", "B"))
-    } else {
-      updateSelectInput(session, "answer", "pick an answer from below", 
-                        c("", "A", "B", "C"))
-    }
-
-    output$mark <- renderUI({
-      img(src = NULL, width = 30)
-    })
-    output$Feedback <- renderUI({
-      img(src = NULL, width = 30)
-    })
-  })
-
-
-  observeEvent(input$submit, {
-    updateButton(session, "submit", disabled = TRUE)
-    answer <- isolate(input$answer)
-    if (any(answer == ans[value$index, 1])) {
-      output$dice <- renderUI({
-        img(src = "newdice1.gif", width = "30%")
-      })
-      active(TRUE)
-    }
-
-    if (length(index_list$list) == 1) {
-      updateButton(session, "nextq", disabled = TRUE)
-      updateButton(session, "submit", disabled = TRUE)
-
-      sendSweetAlert(
+  observeEvent(
+    eventExpr = input$nextq, 
+    handlerExpr = {
+      index_list$list <- index_list$list[!index_list$list %in% value$index]
+      value$index <- index_list$list[1]
+      value$answerbox <- value$index
+      
+      updateButton(
         session = session,
-        title = "Try Again",
-        text = "You've run out of questions, click the restart button to try again.",
-        type = "warning"
+        inputId = "nextq",
+        disabled = TRUE
       )
-    } else {
-      updateButton(session, "submit", disabled = TRUE)
-      updateButton(session, "nextq", disabled = FALSE)
-    }
-
-    ## Mark
-    output$mark <- boastUtils::renderIcon(
-      icon = ifelse(
-        any(answer == ans[value$index, 1]),
-        yes = "correct",
-        no = "incorrect"
-      ),
-      width = 36
-    )
-
-    # Feedback
-    output$Feedback <- renderUI({
-      if (any(answer == ans[value$index, 1])) {
-        HTML(paste("Congrats!", bank[value$index, 7], collapse = "\n"))
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = FALSE
+      )
+      if (value$index %in% c(11:16)) {
+        updateSelectInput(
+          session = session,
+          inputId = "answer",
+          label = "pick an answer from below", 
+          choices = c("", "A", "B")
+        )
       } else {
-        HTML(paste("Sorry, that is incorrect!", bank[value$index, 7], collapse = "\n"))
+        updateSelectInput(
+          session = session, 
+          inputId = "answer",
+          label = "pick an answer from below", 
+          choices = c("", "A", "B", "C")
+        )
       }
-    })
-  })
+      
+      output$mark <- renderUI(
+        expr = {
+          img(src = NULL, width = 30)
+        }
+      )
+      output$Feedback <- renderUI(
+        expr = {
+          img(src = NULL, width = 30)
+        }
+      )
+    }
+  )
+  
 
+  observeEvent(
+    eventExpr = input$submit,
+    handlerExpr = {
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = TRUE
+      )
+      answer <- isolate(input$answer)
+      if (any(answer == ans[value$index, 1])) {
+        output$dice <- renderUI(
+          expr = {
+            img(src = "newdice1.gif", width = "30%")
+          }
+        )
+        active(TRUE)
+      }
+      
+      if (length(index_list$list) == 1) {
+        updateButton(
+          session = session,
+          inputId = "nextq",
+          disabled = TRUE
+        )
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = TRUE
+        )
+        
+        sendSweetAlert(
+          session = session,
+          title = "Try Again",
+          text = "You've run out of questions, click the restart button to try again.",
+          type = "warning"
+        )
+      } else {
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = TRUE
+        )
+        updateButton(
+          session = session,
+          inputId = "nextq",
+          disabled = FALSE
+        )
+      }
+      
+      ## Mark
+      output$mark <- boastUtils::renderIcon(
+        icon = ifelse(
+          any(answer == ans[value$index, 1]),
+          yes = "correct",
+          no = "incorrect"
+        ),
+        width = 36
+      )
+      
+      # Feedback
+      output$Feedback <- renderUI(
+        expr = {
+          if (any(answer == ans[value$index, 1])) {
+            HTML(paste("Congrats!", bank[value$index, 7], collapse = "\n"))
+          } else {
+            HTML(paste("Sorry, that is incorrect!", bank[value$index, 7], collapse = "\n"))
+          }
+        }
+      )
+    }
+  )
+  
   renderIcon()
 
 
@@ -1222,62 +1170,61 @@ server <- function(input, output, session) {
       value$answerbox <- value$index
       ans <- as.matrix(bank[1:16, 6])
       index_list <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
-      output$mark <- renderUI({
-        img(src = NULL, width = 30)
-      })
-      output$Feedback <- renderUI({
-        img(src = NULL, width = 30)
-      })
+      output$mark <- renderUI( 
+        expr = {
+          img(src = NULL, width = 30)
+        }
+      )
+      output$Feedback <- renderUI(
+        expr = {
+          img(src = NULL, width = 30)
+        }
+      )
     }
   )
-  
-  #### mark at the beginning
-  output$mark <- renderUI({
-    img(src = NULL, width = 30)
-  })
-  output$Feedback <- renderUI({
-    img(src = NULL, width = 30)
-  })
-
 
   ## Question Part ----
   value <- reactiveValues(index = 1, mistake = 0, correct = 0)
   ans <- as.matrix(bank[1:16, 6])
   index_list <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
-
-  output$question <- renderUI({
-    value$num <- sample(1:16, 1, replace = FALSE)
-    h4(bank[value$index, 2])
-  })
-  ### question choice
-  output$options <- renderUI({
-    if (value$index == 11) {
-      str1 <- paste("A.", bank[value$index, 3])
-      str2 <- paste("B.", bank[value$index, 4])
-      HTML(paste(str1, str2, sep = "<br/>"))
-    } else if (value$index %in% c(12:16)) {
-      Apic <-
-        img(
-          src = bank[value$index, 3],
-          width = "50%"
-        )
-      Bpic <-
-        img(
-          src = bank[value$index, 4],
-          width = "50%"
-        )
-      str1 <- paste("A.", Apic)
-      str2 <- paste("B.", Bpic)
-      HTML(paste(str1, str2, sep = "<br/>"))
-    } else if (value$index %in% c(1:10)) {
-      str1 <- paste("A.", bank[value$index, 3])
-      str2 <- paste("B.", bank[value$index, 4])
-      str3 <- paste("C.", bank[value$index, 5])
-      HTML(paste(str1, str2, str3, sep = "<br/>"))
-    } else {
-      h4("reach the end")
+  
+  output$question <- renderUI(
+    expr = {
+      value$num <- sample(1:16, 1, replace = FALSE)
+      h4(bank[value$index, 2])
     }
-  })
+  )
+  ### question choice
+  output$options <- renderUI(
+    expr = {
+      if (value$index == 11) {
+        str1 <- paste("A.", bank[value$index, 3])
+        str2 <- paste("B.", bank[value$index, 4])
+        HTML(paste(str1, str2, sep = "<br/>"))
+      } else if (value$index %in% c(12:16)) {
+        Apic <-
+          img(
+            src = bank[value$index, 3],
+            width = "50%"
+          )
+        Bpic <-
+          img(
+            src = bank[value$index, 4],
+            width = "50%"
+          )
+        str1 <- paste("A.", Apic)
+        str2 <- paste("B.", Bpic)
+        HTML(paste(str1, str2, sep = "<br/>"))
+      } else if (value$index %in% c(1:10)) {
+        str1 <- paste("A.", bank[value$index, 3])
+        str2 <- paste("B.", bank[value$index, 4])
+        str3 <- paste("C.", bank[value$index, 5])
+        HTML(paste(str1, str2, str3, sep = "<br/>"))
+      } else {
+        h4("reach the end")
+      }
+    }
+  )
 
   output$gameplot1 <- renderUI(
     img(
@@ -1289,28 +1236,39 @@ server <- function(input, output, session) {
   )
 
   ## Dice Icon for quiz  ----
-
+  
   score <- reactiveVal(0)
-
-  output$dice <- renderUI({
-    img(src = "21.png", width = "30%")
-  })
-
-  output$gamescore <- renderUI({
-    h2("Your cumulative score is", score())
-  })
-
-  output$feedback <- renderUI({
-    div(style = "text-align: center", tags$h4(bank$Feedback[value$num]))
-  })
-
-  observeEvent(input$restart, {
-    newvalue <- score() - score()
-    score(newvalue)
-    output$dice <- renderUI({
+  
+  output$dice <- renderUI(
+    expr = {
       img(src = "21.png", width = "30%")
-    })
-  })
+    }
+  )
+  
+  output$gamescore <- renderUI(
+    expr = {
+      h2("Your cumulative score is", score())
+    }
+  )
+  
+  output$feedback <- renderUI(
+    expr = {
+      div(style = "text-align: center", tags$h4(bank$Feedback[value$num]))
+    }
+  )
+  
+  observeEvent(
+    eventExpr = input$restart, 
+    handlerExpr = {
+      newvalue <- score() - score()
+      score(newvalue)
+      output$dice <- renderUI(
+        expr = {
+          img(src = "21.png", width = "30%")
+        }
+      )
+    }
+  )
 }
 
 # Boast App Call ----
