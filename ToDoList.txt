@@ -1,21 +1,20 @@
 # Things Needed for This Version
-1. Fix Console Messages: ✓ 
+1. Fix Console Messages: 
     `geom_smooth()` using formula = 'y ~ x' ✓ 
+    
+    Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
     
     New Messages Found using Titanic data: ✓ 
     
     Warning: Removed 1 rows containing non-finite values (`stat_smooth()`). ✓ 
-    Warning: Removed 1 rows containing missing values (`geom_point()`). ✓ 
+    Warning: Removed 1 rows containing missing values (`geom_point()`). ✓
     
-2. Figure out where Extra code is supposed to be used.
-    (Multiple Linear Regression? More tabs in the explore page?) 
-    
-3. Add appropriate text to Alt arguments. <---- *Current focus*
+2. Add appropriate text to Alt arguments. ✓ 
 
-4. Update References ✓ 
+3. Update References ✓ 
 
 # Ideas for Future Development
 
 1.Improve prereq's(Maybe add collapsable tabs?)
-2.Replace plot pictures for the quiz with rendered plots?
+2. Find use for the code in the ScrapIdeas file.
 
