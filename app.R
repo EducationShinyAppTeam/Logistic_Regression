@@ -465,16 +465,16 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
-          "Wickham, H., François, R., Henry, L., Müller, K. (2021). dplyr: A 
-            Grammar of Data Manipulation. R package version 1.0.6. Available from
-            https://CRAN.R-project.org/package=dplyr"
-        ),
-        p(
-          class = "hangingindent",
           "Wickham, H., Chang, W., Henry, L., Pedersen, T.L., Takahashi, K., 
             Wilke, C., Woo, K., Yutani, H., Dunnington, D.  (2020). ggplot2: 
             Create Elegant Data Visualisations Using the Grammar of Graphics. R package
             version 3.3.3. Available from https://CRAN.R-project.org/package=ggplot2"
+        ),
+        p(
+          class = "hangingindent",
+          "Wickham, H., François, R., Henry, L., Müller, K. (2021). dplyr: A 
+            Grammar of Data Manipulation. R package version 1.0.6. Available from
+            https://CRAN.R-project.org/package=dplyr"
         ),
         p(
           class = "hangingindent",
