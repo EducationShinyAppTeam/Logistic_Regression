@@ -1,8 +1,7 @@
 # Things Needed for This Version
+
 1. Fix Console Messages: 
     `geom_smooth()` using formula = 'y ~ x' ✓ 
-    
-    Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
     
     New Messages Found using Titanic data: ✓ 
     
