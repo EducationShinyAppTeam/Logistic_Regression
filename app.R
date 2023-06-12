@@ -691,7 +691,7 @@ server <- function(input, output, session) {
       df(input$b0, input$b1, input$sampleSize)
     }
   )
-  
+  ## Logistic Plot ----
   output$logplot <- renderPlotly(
     expr = {
       input$newSample
@@ -900,7 +900,7 @@ server <- function(input, output, session) {
     }
  )
   
-  ## TIMER ----
+  ## Timer for dice ----
   timer <- reactiveVal(1)
   active <- reactiveVal(FALSE)
 
@@ -1016,12 +1016,6 @@ server <- function(input, output, session) {
     }
     return(bank[index, key])
   }
-
-  observeEvent(
-    eventExpr = input$ci, 
-    handlerExpr = {
-    }
-  )
 
   ## Buttons Handle ----
   observeEvent(
@@ -1145,7 +1139,6 @@ server <- function(input, output, session) {
   
   renderIcon()
 
-
   observeEvent(
     eventExpr = input$restart, 
     handlerExpr = {
@@ -1253,7 +1246,9 @@ server <- function(input, output, session) {
   
   output$feedback <- renderUI(
     expr = {
-      div(style = "text-align: center", tags$h4(bank$Feedback[value$num]))
+      div(
+        style = "text-align: center", 
+        tags$h4(bank$Feedback[value$num]))
     }
   )
   
