@@ -92,7 +92,8 @@ ui <- dashboardPage(
             label = "Prerequisites!", 
             icon = icon("book"), 
             size = "large", 
-            class = "circle grow")
+            class = "circle grow"
+          )
         ),
         br(),
         h2("About the data"),
@@ -103,7 +104,8 @@ ui <- dashboardPage(
         br(),
         h2("Acknowledgements"),
         p("This app was developed and coded by Yiyun Gong and Ruisi Wang. 
-          This app was updated by Wanyi Su. Special thanks to Hatfield, Neil J."),
+          This app was further updated by Wanyi Su and Sean Burke. Special thanks 
+          to Hatfield, Neil J."),
         br(),
         br(),
         br(),

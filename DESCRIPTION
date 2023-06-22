@@ -6,7 +6,8 @@ Authors@R: c(
     person(given = "Yiyun", family = "Gong", email = "", role = c("aut", "cre")),
     person(given = "Ruisi", family = "Wang", email = "", role = c("aut")),
     person(given = "Jiayue", family = "He", email = "jph6197@psu.edu", role = c("aut")),
-    person(given = "Wanyi", family = "Su", email = "", role = c("aut"))
+    person(given = "Wanyi", family = "Su", email = "", role = c("aut")),
+    person(given = "Sean", family = "Burke", role = c("ctb"))
   )
 Chapter: Chapter 10
 Description: This app will introduce logistic regression model to you and it 
