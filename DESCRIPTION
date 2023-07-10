@@ -9,7 +9,7 @@ Authors@R: c(
     person(given = "Wanyi", family = "Su", email = "", role = c("aut")),
     person(given = "Sean", family = "Burke", role = c("ctb"))
   )
-Chapter: Chapter 10
+Chapter: Categorical Data
 Description: This app will introduce logistic regression model to you and it 
              allow you to explore Single Logistic Regression with simulated data and the 
              Empirical Logit Plot with real datasets.

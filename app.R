@@ -218,13 +218,13 @@ ui <- dashboardPage(
               ),
               column(
                 width = 7,
-                plotlyOutput("logplot", width = "98%", height = "300px") %>% 
+                plotlyOutput("logPlot", width = "98%", height = "300px") %>% 
                   withSpinner(color = boastUtils::psuPalette[4]),
                 br(),
                 tableOutput("citable"),
                 plotOutput("residualPlot", width = "100%", height = "330px") %>% 
                   withSpinner(color =  boastUtils::psuPalette[4]),
-                tags$style(type = "text/css", "#lemeshowTest, #obsexp 
+                tags$style(type = "text/css", "#lemeshowTest, #obsExp 
                            {background-color: rgba(249, 105, 14, 1); color: yellow; 
                            text-align: center}", "#title{color: blackl; 
                            padding-left:2.5em; font-size: 22px}"),
@@ -273,7 +273,7 @@ ui <- dashboardPage(
                 wellPanel(
                   #### select data sets
                   selectInput(
-                    inputId = "datatable", label = "Select Dataset:",
+                    inputId = "dataTable", label = "Select Dataset:",
                     choices = c("MedGPA", "Titanic", "Leukemia"),
                     selected = "MedGPA"
                   ),
@@ -308,6 +308,7 @@ ui <- dashboardPage(
       tabItem(
         tabName = "game",
         h2("Game Section"),
+        p("Answer the questions below and reach a score of at least 20 to win!"),
         br(),
         fluidRow(
           column(
@@ -335,17 +336,12 @@ ui <- dashboardPage(
               column(
                 width = 12, 
                 align = "center", 
-                uiOutput("gamescore")
+                uiOutput("gameScore")
               ),
               column(
                 width = 12, 
                 align = "center", 
                 div(
-                  id = "plot-container",
-                  tags$img(
-                    src = "spinner.gif",
-                    id = "loading-spinner"
-                  ),
                   uiOutput("dice", width = "100%")
                 )
               )
@@ -371,7 +367,7 @@ ui <- dashboardPage(
             div(
               style = "display: inline-block",
               bsButton(
-                inputId = "nextq", 
+                inputId = "nextQuestion", 
                 label = "Next", 
                 disabled = TRUE
               )
@@ -578,23 +574,23 @@ server <- function(input, output, session) {
   
   ## Update Response Options for empirical logit plot ----
   observeEvent(
-    eventExpr = input$datatable, 
+    eventExpr = input$dataTable, 
     handlerExpr = {
-      if (input$datatable == 'MedGPA') {
+      if (input$dataTable == 'MedGPA') {
         updateSelectInput(
           session = session, 
           inputId = "yVar", 
           label = "Select Response Y",
           choices = c("Acceptance")
         ) 
-      } else if (input$datatable == "Titanic") {
+      } else if (input$dataTable == "Titanic") {
         updateSelectInput(
           session = session, 
           inputId = "yVar", 
           label = "Select Response Y",
           choices = c("Survived")
         ) 
-      } else if (input$datatable == "Leukemia") {
+      } else if (input$dataTable == "Leukemia") {
         updateSelectInput(
           session = session,
           inputId = "yVar", 
@@ -607,23 +603,23 @@ server <- function(input, output, session) {
   
   ## Update Predictor Options for empirical logit plot ----
   observeEvent(
-    eventExpr = input$datatable, 
+    eventExpr = input$dataTable, 
     handlerExpr = {
-      if (input$datatable == 'MedGPA') {
+      if (input$dataTable == 'MedGPA') {
         updateSelectInput(
           session = session, 
           inputId = "xVar", 
           label = "Select Quantitave Predictor X",
           choices = c("GPA", "MCAT", "BCPM")
         ) 
-      } else if (input$datatable == "Titanic") {
+      } else if (input$dataTable == "Titanic") {
         updateSelectInput(
           session = session, 
           inputId = "xVar", 
           label = "Select Quantitave Predictor X",
           choices = c("Age")
         ) 
-      } else if (input$datatable == "Leukemia") {
+      } else if (input$dataTable == "Leukemia") {
         updateSelectInput(
           session = session,
           inputId = "xVar", 
@@ -675,7 +671,6 @@ server <- function(input, output, session) {
     }
   )
 
-
   ## Plot outputs ----
   df <- function(b0, b1, sampleSize) {
     intercept <- as.numeric(b0)
@@ -693,8 +688,9 @@ server <- function(input, output, session) {
       df(input$b0, input$b1, input$sampleSize)
     }
   )
+  
   ## Logistic Plot ----
-  output$logplot <- renderPlotly(
+  output$logPlot <- renderPlotly(
     expr = {
       input$newSample
       df <- isolate(commonDf())
@@ -743,24 +739,49 @@ server <- function(input, output, session) {
         data = df
       )
       if (input$residualType == "pearson") {
-        plot(residuals(logit, type = "pearson"),
-             type = "b",
-             main = "Pearson Res- logit", ylab = "Pearson Residual",
-             cex.axis = 1.3, cex.lab = 1.5,
-             cex.main = 1.5, pch = 16, las = 1
+        p <- plot(
+          residuals(logit, type = "pearson"),
+          type = "b",
+          main = "Pearson Res- logit",
+          ylab = "Pearson Residual",
+          cex.axis = 1.3,
+          cex.lab = 1.5,
+          cex.main = 1.5, 
+          pch = 16,
+          las = 1
         )
       } else {
-        plot(residuals(logit, type = "deviance"),
-             type = "b", main = "Deviance Res- logit", ylab = "Deviance Residual",
-             cex.axis = 1.3, cex.lab = 1.5,
-             cex.main = 1.5, pch = 16, las = 1
+        p <- plot(
+          residuals(logit, type = "deviance"),
+          type = "b", 
+          main = "Deviance Res- logit", 
+          ylab = "Deviance Residual",
+          cex.axis = 1.3, 
+          cex.lab = 1.5,
+          cex.main = 1.5, 
+          pch = 16,
+          las = 1
         )
       }
-    }
+      p
+    },
+    alt = reactive(
+      paste0(
+        "This ",
+        if (input$residualType == "pearson") {
+          "pearson"
+        } else {
+          "deviance"
+        },
+        " plot displays ",
+        input$sampleSize,
+        " points whose residuals appear to fall randomly around 0."
+      )
+    )
   )
 
   ## Goodness of fit ----
-  HLresult <- function() {
+  hlResult <- function() {
     input$newSample
     df <- isolate(commonDf())
     mod <- glm(
@@ -774,14 +795,14 @@ server <- function(input, output, session) {
 
   output$lemeshowTest <- renderPrint(
     expr = {
-      hl <- HLresult()
+      hl <- hlResult()
       hl
     }
   )
   
   output$lemeshowDF <- renderTable(
     {
-      hl <- HLresult()
+      hl <- hlResult()
       hs <- data.frame(hl$statistic, hl$parameter, hl$p.value)
       names(hs) <- c("χ2", "df", "p-value")
       rownames(hs) <- NULL
@@ -796,7 +817,7 @@ server <- function(input, output, session) {
 
   output$obsexpDF <- renderTable(
     {
-      hl <- HLresult()
+      hl <- hlResult()
       hob <- data.frame(cbind(hl$expected, hl$observed))
       hob <- setDT(hob, keep.rownames = TRUE)[]
       names(hob) <- c(
@@ -813,19 +834,19 @@ server <- function(input, output, session) {
     rownames = TRUE
   )
 
-  output$obsexp <- renderPrint(
+  output$obsExp <- renderPrint(
     expr = {
-      hl <- HLresult()
+      hl <- hlResult()
       cbind(hl$expected, hl$observed)
     }
   )
   
   ## Set the Data Collection ----
   dataCollection <- eventReactive(
-    eventExpr = input$datatable,
+    eventExpr = input$dataTable,
     valueExpr = {
       switch(
-        EXPR = input$datatable,
+        EXPR = input$dataTable,
         MedGPA = MedGPA,
         Titanic = Titanic,
         Leukemia = Leukemia
@@ -836,16 +857,19 @@ server <- function(input, output, session) {
   ### Empirical logit plot ----
   
   observeEvent(
-    eventExpr = c(input$datatable, input$yVar, input$xVar, input$ngroups),
+    eventExpr = c(input$dataTable, input$yVar, input$xVar, input$ngroups),
     handlerExpr = {
       output$empiricalLogitPlot <- renderPlot(
         expr = {
           validate(
-            need(input$yVar %in% names(dataCollection()),
-                 message = "No Y var"
+            need(
+              input$yVar %in% names(dataCollection()),
+              message = "No Y var"
             ),
-            need(input$xVar %in% names(dataCollection()),
-                 message = "No X var")
+            need(
+              input$xVar %in% names(dataCollection()),
+              message = "No X var"
+            )
           )
           breaks <- quantile(
             x = dataCollection()[, input$xVar],
@@ -859,12 +883,10 @@ server <- function(input, output, session) {
             include.lowest = TRUE,
             right = FALSE
           )
-          
           tempData <- cbind(
               dataCollection(),
               xGroups = xGroups
             )
-          
           empLogitData <- tempData %>%
             dplyr::group_by(xGroups) %>%
             summarize(
@@ -876,7 +898,6 @@ server <- function(input, output, session) {
               adjProp = (yeses + 0.5)/(cases + 1),
               logit = log(adjProp/(1 - adjProp))
             )
-          
           ggplot(
             data = empLogitData,
             mapping = aes(x = xMean, y = logit)
@@ -895,9 +916,15 @@ server <- function(input, output, session) {
               text = element_text(size = 16)
             )
         },
-        alt = paste0("This Empirical logit plot displays the relationship between
-                     Log Odds(", input$yVar, ") and ", input$xVar, ", along with ",
-                     input$ngroups, " intervals on the plot.")
+        alt = paste0(
+          "This Empirical logit plot displays the relationship between Log Odds(",
+          input$yVar,
+          ") and ",
+          input$xVar,
+          ", along with ",
+          input$ngroups, 
+          " intervals on the plot."
+        )
       )
     }
  )
@@ -916,21 +943,29 @@ server <- function(input, output, session) {
             timer(timer() - 1)
             if (timer() < 1) {
               active(FALSE)
-              
               randnum <- sample(1:6, 1)
-              newvalue <- score() + isolate(randnum)
-              score(newvalue)
-              
+              newValue <- score() + isolate(randnum)
+              score(newValue)
               if (as.numeric(score()) >= 20) {
                 output$dice <- renderUI(
                   expr = {
                     Sys.sleep(1)
-                    img(src = "congrats.png", width = "60%")
+                    sendSweetAlert(
+                      session = session,
+                      title = "Congratulations!",
+                      text = paste0(
+                        "You've successfully reached a score of ", 
+                        score(),
+                        " within 10 questions. Click the restart button to play 
+                        again."
+                      ),
+                      type = "success"
+                    )
                   }
                 )
                 updateButton(
                   session = session,
-                  inputId = "nextq",
+                  inputId = "nextQuestion",
                   disabled = TRUE
                 )
                 updateButton(
@@ -946,49 +981,73 @@ server <- function(input, output, session) {
               } else {
                 updateButton(
                   session = session,
-                  inputId = "nextq",
+                  inputId = "nextQuestion",
                   disabled = FALSE
                 )
                 if (randnum == 1) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
-                      img(src = "21.png", width = "30%")
+                      img(
+                        src = "21.png",
+                        width = "30%",
+                        alt = "The dice rolled a 1."
+                      )
                     }
                   )
                 } else if (randnum == 2) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
-                      img(src = "22.png", width = "30%")
+                      img(
+                        src = "22.png",
+                        width = "30%",
+                        alt = "The dice rolled a 2."
+                      )
                     }
                   )
                 } else if (randnum == 3) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
-                      img(src = "23.png", width = "30%")
+                      img(
+                        src = "23.png",
+                        width = "30%",
+                        alt = "The dice rolled a 3."
+                      )
                     }
                   )
                 } else if (randnum == 4) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
-                      img(src = "24.png", width = "30%")
+                      img(
+                        src = "24.png",
+                        width = "30%",
+                        alt = "The dice rolled a 4."
+                      )
                     }
                   )
                 } else if (randnum == 5) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
-                      img(src = "25.png", width = "30%")
+                      img(
+                        src = "25.png",
+                        width = "30%",
+                        alt = "The dice rolled a 5."
+                      )
                     }
                   )
                 } else if (randnum == 6) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
-                      img(src = "26.png", width = "30%")
+                      img(
+                        src = "26.png",
+                        width = "30%",
+                        alt = "The dice rolled a 6."
+                      )
                     }
                   )
                 }
@@ -1021,15 +1080,15 @@ server <- function(input, output, session) {
 
   ## Buttons Handle ----
   observeEvent(
-    eventExpr = input$nextq, 
+    eventExpr = input$nextQuestion, 
     handlerExpr = {
-      index_list$list <- index_list$list[!index_list$list %in% value$index]
-      value$index <- index_list$list[1]
-      value$answerbox <- value$index
+      indexList$list <- indexList$list[!indexList$list %in% value$index]
+      value$index <- indexList$list[1]
+      value$answerBox <- value$index
       
       updateButton(
         session = session,
-        inputId = "nextq",
+        inputId = "nextQuestion",
         disabled = TRUE
       )
       updateButton(
@@ -1052,15 +1111,14 @@ server <- function(input, output, session) {
           choices = c("", "A", "B", "C")
         )
       }
-      
       output$mark <- renderUI(
         expr = {
-          img(src = NULL, width = 30)
+          img(src = NULL, width = 30) #clears correction mark
         }
       )
       output$Feedback <- renderUI(
         expr = {
-          img(src = NULL, width = 30)
+          img(src = NULL, width = 30) #clears feedback
         }
       )
     }
@@ -1079,16 +1137,20 @@ server <- function(input, output, session) {
       if (any(answer == ans[value$index, 1])) {
         output$dice <- renderUI(
           expr = {
-            img(src = "newdice1.gif", width = "30%")
+            img(
+              src = "newdice1.gif",
+              width = "30%",
+              alt = "The dice is rolling"
+            )
           }
         )
         active(TRUE)
       }
       
-      if (length(index_list$list) == 1) {
+      if (length(indexList$list) == 1) {
         updateButton(
           session = session,
-          inputId = "nextq",
+          inputId = "nextQuestion",
           disabled = TRUE
         )
         updateButton(
@@ -1096,11 +1158,10 @@ server <- function(input, output, session) {
           inputId = "submit",
           disabled = TRUE
         )
-        
         sendSweetAlert(
           session = session,
           title = "Try Again",
-          text = "You've run out of questions, click the restart button to try again.",
+          text = "You've run out of questions. Click the restart button to try again.",
           type = "warning"
         )
       } else {
@@ -1111,7 +1172,7 @@ server <- function(input, output, session) {
         )
         updateButton(
           session = session,
-          inputId = "nextq",
+          inputId = "nextQuestion",
           disabled = FALSE
         )
       }
@@ -1160,19 +1221,19 @@ server <- function(input, output, session) {
         label = "pick an answer from below",
         choices = c("", "A", "B", "C")
       )
-      index_list$list <- c(index_list$list, sample(2:14, 13, replace = FALSE))
+      indexList$list <- c(indexList$list, sample(2:14, 13, replace = FALSE))
       value$index <- 1
-      value$answerbox <- value$index
+      value$answerBox <- value$index
       ans <- as.matrix(bank[1:16, 6])
-      index_list <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
+      indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
       output$mark <- renderUI( 
         expr = {
-          img(src = NULL, width = 30)
+          img(src = NULL, width = 30) #clears correction marks
         }
       )
       output$Feedback <- renderUI(
         expr = {
-          img(src = NULL, width = 30)
+          img(src = NULL, width = 30) #clears Feedback
         }
       )
     }
@@ -1181,7 +1242,7 @@ server <- function(input, output, session) {
   ## Question Part ----
   value <- reactiveValues(index = 1, mistake = 0, correct = 0)
   ans <- as.matrix(bank[1:16, 6])
-  index_list <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
+  indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
   
   output$question <- renderUI(
     expr = {
@@ -1189,7 +1250,24 @@ server <- function(input, output, session) {
       h4(bank[value$index, 2])
     }
   )
-  ### question choice
+  
+  ### Plot Image Alt Text ----
+  plotAltText <- function(i) {
+    altText <- if (bank[value$index, i] %in% c("b1pos1.png", "b1pos2.png", "b1pos3.png")) {
+      "This plot indicates a positive slope."
+    } else if (bank[value$index, i] %in% c("b1neg1.png", "b1neg2.png", "b1neg3.png")) {
+      "This plot indicates a negative slope."
+    } else if (bank[value$index, i] %in% c("largersample1.png", "largersample2.png")) {
+      "This plot displays a large amount of points."
+    } else if (bank[value$index, i] %in% c("smallersample1.png", "smallersample2.png")) {
+      "This plot displays a small amount of points."
+    } else {
+      ""
+    }
+    paste0(altText)
+  }
+  
+  ### question choice ----
   output$options <- renderUI(
     expr = {
       if (value$index == 11) {
@@ -1197,18 +1275,20 @@ server <- function(input, output, session) {
         str2 <- paste("B.", bank[value$index, 4])
         HTML(paste(str1, str2, sep = "<br/>"))
       } else if (value$index %in% c(12:16)) {
-        Apic <-
+        picA <-
           img(
             src = bank[value$index, 3],
-            width = "50%"
+            width = "50%",
+            alt = plotAltText(3)
           )
-        Bpic <-
+        picB <-
           img(
             src = bank[value$index, 4],
-            width = "50%"
+            width = "50%",
+            alt = plotAltText(4)
           )
-        str1 <- paste("A.", Apic)
-        str2 <- paste("B.", Bpic)
+        str1 <- paste("A.", picA)
+        str2 <- paste("B.", picB)
         HTML(paste(str1, str2, sep = "<br/>"))
       } else if (value$index %in% c(1:10)) {
         str1 <- paste("A.", bank[value$index, 3])
@@ -1221,26 +1301,21 @@ server <- function(input, output, session) {
     }
   )
 
-  output$gameplot1 <- renderUI(
-    img(
-      src = bank[value$index, 3],
-      width = "100%",
-      height = "107%", 
-      style = "text-align: center"
-    )
-  )
-
   ## Dice Icon for quiz  ----
   
   score <- reactiveVal(0)
   
   output$dice <- renderUI(
     expr = {
-      img(src = "21.png", width = "30%")
+      img(
+        src = "21.png",
+        width = "30%",
+        alt = "The dice currently displays a 1."
+      )
     }
   )
   
-  output$gamescore <- renderUI(
+  output$gameScore <- renderUI(
     expr = {
       h2("Your cumulative score is", score())
     }
@@ -1257,11 +1332,15 @@ server <- function(input, output, session) {
   observeEvent(
     eventExpr = input$restart, 
     handlerExpr = {
-      newvalue <- score() - score()
-      score(newvalue)
+      newValue <- score() - score()
+      score(newValue)
       output$dice <- renderUI(
         expr = {
-          img(src = "21.png", width = "30%")
+          img(
+            src = "21.png",
+            width = "30%",
+            alt = "The dice currently displays a 1." 
+          )
         }
       )
     }
