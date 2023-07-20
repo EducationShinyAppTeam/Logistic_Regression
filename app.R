@@ -308,12 +308,15 @@ ui <- dashboardPage(
       tabItem(
         tabName = "game",
         h2("Game Section"),
-        p("Answer the questions below and reach a score of at least 20 to win!"),
+        p("Answer the questions below and reach a score of at least 20 within 10 
+          questions to win!"),
         br(),
         fluidRow(
           column(
             width = 6,
             wellPanel(
+              uiOutput("questNum"),
+              br(),
               uiOutput("question"),
               uiOutput("options"),
               br(),
@@ -943,8 +946,8 @@ server <- function(input, output, session) {
             timer(timer() - 1)
             if (timer() < 1) {
               active(FALSE)
-              randnum <- sample(1:6, 1)
-              newValue <- score() + isolate(randnum)
+              randNum <- sample(1:6, 1)
+              newValue <- score() + isolate(randNum)
               score(newValue)
               if (as.numeric(score()) >= 20) {
                 output$dice <- renderUI(
@@ -984,7 +987,7 @@ server <- function(input, output, session) {
                   inputId = "nextQuestion",
                   disabled = FALSE
                 )
-                if (randnum == 1) {
+                if (randNum == 1) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
@@ -995,7 +998,7 @@ server <- function(input, output, session) {
                       )
                     }
                   )
-                } else if (randnum == 2) {
+                } else if (randNum == 2) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
@@ -1006,7 +1009,7 @@ server <- function(input, output, session) {
                       )
                     }
                   )
-                } else if (randnum == 3) {
+                } else if (randNum == 3) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
@@ -1017,7 +1020,7 @@ server <- function(input, output, session) {
                       )
                     }
                   )
-                } else if (randnum == 4) {
+                } else if (randNum == 4) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
@@ -1028,7 +1031,7 @@ server <- function(input, output, session) {
                       )
                     }
                   )
-                } else if (randnum == 5) {
+                } else if (randNum == 5) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
@@ -1039,7 +1042,7 @@ server <- function(input, output, session) {
                       )
                     }
                   )
-                } else if (randnum == 6) {
+                } else if (randNum == 6) {
                   output$dice <- renderUI(
                     expr = {
                       Sys.sleep(1)
@@ -1078,49 +1081,72 @@ server <- function(input, output, session) {
     return(bank[index, key])
   }
 
+  ## Question Counter ----
+  questionCount <- reactiveVal(1)
+  
   ## Buttons Handle ----
   observeEvent(
     eventExpr = input$nextQuestion, 
     handlerExpr = {
-      indexList$list <- indexList$list[!indexList$list %in% value$index]
-      value$index <- indexList$list[1]
-      value$answerBox <- value$index
-      
-      updateButton(
-        session = session,
-        inputId = "nextQuestion",
-        disabled = TRUE
-      )
-      updateButton(
-        session = session,
-        inputId = "submit",
-        disabled = FALSE
-      )
-      if (value$index %in% c(11:16)) {
-        updateSelectInput(
+      if (questionCount() == 10) {
+        updateButton(
           session = session,
-          inputId = "answer",
-          label = "pick an answer from below", 
-          choices = c("", "A", "B")
+          inputId = "nextQuestion",
+          disabled = TRUE
+        )
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = TRUE
+        )
+        sendSweetAlert(
+          session = session,
+          title = "Try Again",
+          text = "You've run out of questions. Click the restart button to try again.",
+          type = "warning"
         )
       } else {
-        updateSelectInput(
-          session = session, 
-          inputId = "answer",
-          label = "pick an answer from below", 
-          choices = c("", "A", "B", "C")
+        indexList$list <- indexList$list[!indexList$list %in% value$index]
+        value$index <- indexList$list[1]
+        value$answerBox <- value$index
+        
+        updateButton(
+          session = session,
+          inputId = "nextQuestion",
+          disabled = TRUE
         )
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = FALSE
+        )
+        if (value$index %in% c(11:16)) {
+          updateSelectInput(
+            session = session,
+            inputId = "answer",
+            label = "Select your answer from below", 
+            choices = c("", "A", "B")
+          )
+        } else {
+          updateSelectInput(
+            session = session, 
+            inputId = "answer",
+            label = "Select your answer from below", 
+            choices = c("", "A", "B", "C")
+          )
+        }
+        output$mark <- renderUI(
+          expr = {
+            img(src = NULL, width = 30) #clears correction mark
+          }
+        )
+        output$Feedback <- renderUI(
+          expr = {
+            img(src = NULL, width = 30) #clears feedback
+          }
+        )
+        questionCount(questionCount() + 1)
       }
-      output$mark <- renderUI(
-        expr = {
-          img(src = NULL, width = 30) #clears correction mark
-        }
-      )
-      output$Feedback <- renderUI(
-        expr = {
-          img(src = NULL, width = 30) #clears feedback
-        }
-      )
     }
   )
   
@@ -1147,22 +1173,16 @@ server <- function(input, output, session) {
         active(TRUE)
       }
       
-      if (length(indexList$list) == 1) {
+      if (questionCount() >= 10) {
         updateButton(
           session = session,
           inputId = "nextQuestion",
-          disabled = TRUE
+          disabled = FALSE
         )
         updateButton(
           session = session,
           inputId = "submit",
           disabled = TRUE
-        )
-        sendSweetAlert(
-          session = session,
-          title = "Try Again",
-          text = "You've run out of questions. Click the restart button to try again.",
-          type = "warning"
         )
       } else {
         updateButton(
@@ -1218,7 +1238,7 @@ server <- function(input, output, session) {
       updateSelectInput(
         session = session, 
         inputId = "answer", 
-        label = "pick an answer from below",
+        label = "Select your answer from below",
         choices = c("", "A", "B", "C")
       )
       indexList$list <- c(indexList$list, sample(2:14, 13, replace = FALSE))
@@ -1315,6 +1335,11 @@ server <- function(input, output, session) {
     }
   )
   
+   output$questNum <- renderUI(
+    expr = {
+      h2("Question ", questionCount())
+    }
+  )
   output$gameScore <- renderUI(
     expr = {
       h2("Your cumulative score is", score())
@@ -1329,11 +1354,14 @@ server <- function(input, output, session) {
     }
   )
   
+ 
+  
   observeEvent(
     eventExpr = input$restart, 
     handlerExpr = {
       newValue <- score() - score()
       score(newValue)
+      questionCount(1)
       output$dice <- renderUI(
         expr = {
           img(
