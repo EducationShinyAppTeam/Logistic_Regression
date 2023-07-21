@@ -333,7 +333,6 @@ ui <- dashboardPage(
           ),
           column(
             width = 6,
-            br(),
             tags$head(tags$style(HTML(mycss))),
             fluidRow(
               column(
