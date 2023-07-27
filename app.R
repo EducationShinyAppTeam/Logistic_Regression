@@ -441,6 +441,11 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
+          "Hosmer, D. W., and Stanley Lemeshow. (2000). Applied Logistic Regression. 
+          John Wiley & Sons."
+          ),
+        p(
+          class = "hangingindent",
           "Niedballa, Jürgen, and Matthias Lindenborn. (2016). resourceselection: 
           Resource Selection (Probability) Functions for Use-Availability Data. 
           R package version 0.3-5. Available from 
@@ -857,7 +862,6 @@ server <- function(input, output, session) {
   )
 
   ### Empirical logit plot ----
-  
   observeEvent(
     eventExpr = c(input$dataTable, input$yVar, input$xVar, input$ngroups),
     handlerExpr = {
@@ -931,7 +935,7 @@ server <- function(input, output, session) {
     }
  )
   
-  ## Timer for dice ----
+  ## Timer for Dice and Success ----
   timer <- reactiveVal(1)
   active <- reactiveVal(FALSE)
 
@@ -1352,8 +1356,6 @@ server <- function(input, output, session) {
         tags$h4(bank$Feedback[value$num]))
     }
   )
-  
- 
   
   observeEvent(
     eventExpr = input$restart, 

@@ -7,6 +7,8 @@ Authors@R: c(
     person(given = "Ruisi", family = "Wang", email = "", role = c("aut")),
     person(given = "Jiayue", family = "He", email = "jph6197@psu.edu", role = c("aut")),
     person(given = "Wanyi", family = "Su", email = "", role = c("aut")),
+     person(given = "Dennis", family = "Pearl", role = c("aut")),
+    person(given = "Neil", family = "Hatfield", role = c("aut")),
     person(given = "Sean", family = "Burke", role = c("ctb"))
   )
 Chapter: Categorical Data
