@@ -1,7 +1,6 @@
 # Load Package ----
 library(boastUtils)
 library(ggplot2)
-library(plotly)
 library(DT)
 library(dplyr)
 library(shinycssloaders)
