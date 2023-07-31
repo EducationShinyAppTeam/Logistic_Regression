@@ -2,6 +2,7 @@
 library(boastUtils)
 library(ggplot2)
 library(plotly)
+library(DT)
 library(dplyr)
 library(shinycssloaders)
 library(Stat2Data)
@@ -199,6 +200,11 @@ ui <- dashboardPage(
                     step = 0.01
                   ),
                   checkboxInput(
+                    inputId = "showFP",
+                    label = "Show fitted probability",
+                    value = TRUE
+                  ),
+                  checkboxInput(
                     inputId = "showCI",
                     label = "Show confidence interval",
                     value = TRUE
@@ -226,30 +232,35 @@ ui <- dashboardPage(
                 plotOutput("logPlot", width = "98%") %>% 
                   withSpinner(color = boastUtils::psuPalette[4]),
                 br(),
-                #
-                tableOutput("citable"),
+                # NOT NEEDED???
+                # tableOutput("citable"),
                 plotOutput("residualPlot", width = "100%", height = "330px") %>% 
                   withSpinner(color =  boastUtils::psuPalette[4]),
-                tags$style(type = "text/css", "#lemeshowTest, #obsExp 
-                           {background-color: rgba(249, 105, 14, 1); color: yellow; 
-                           text-align: center}", "#title{color: blackl; 
-                           padding-left:2.5em; font-size: 22px}"),
-                br(),
-                h3(strong(id = "title", "Hosmer and Lemeshow goodness of fit test")),
-                tableOutput("lemeshowDF"),
-                tableOutput("obsexpDF"),
-                bsPopover("lemeshowDF", " ", "The Hosmer-Lemeshow Test is a goodness 
-                          of fit test for the logistic model. Here is the result 
-                          of the Hosmer-Lemeshow Test for ten groups. Number of 
-                          subgroups, g, usually uses the formula g > P + 1. P is 
-                          number of covariates. Degree of freedom equals g-2. ", 
-                          trigger = "hover", placement = "left"),
-                bsPopover("obsexpDF", " ", "There are 10 rows meaning g=10.", 
-                          trigger = "hover", placement = "left")
-                #
               )
             ),
+            # NOT NEEDED???
+            # tags$style(
+            #   type = "text/css", "#lemeshowTest, #obsExp
+            #            {background-color: rgba(249, 105, 14, 1); color: yellow;
+            #            text-align: center}", "#title{color: blackl;
+            #            padding-left:2.5em; font-size: 22px}"
+            # ),
+            br(),
+            h3(strong(id = "title", "Hosmer and Lemeshow goodness of fit test"), align = 'center'),
+            DT::DTOutput(outputId = "lemeshowDF"),
+            DT::DTOutput(outputId = "obsexpDF"),
+            # NOT NEEDED???
+            # bsPopover("lemeshowDF", " ", "The Hosmer-Lemeshow Test is a goodness
+            #           of fit test for the logistic model. Here is the result of 
+            #           the Hosmer-Lemeshow Test for ten groups. Number of subgroups,
+            #           g, usually uses the formula g > P + 1. P is number of 
+            #           covariates. Degree of freedom equals g-2.", 
+            #           trigger = "hover", placement = "left"),
+            # 
+            # bsPopover("obsexpDF", " ", "There are 10 rows meaning g=10.", 
+            #           trigger = "hover", placement = "left"),
             # set continue button
+            br(),
             div(
               style = "text-align: center",
               bsButton(
@@ -496,14 +507,16 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
-          "Sievert, C. (2020). plotly: Create Interactive Web Graphics via 'plotly.js'.
-          R package version 4.10.1. Available from  https://CRAN.R-project.org/package=plotly."
-          ),
-        p(
-          class = "hangingindent",
           "Ushey, Kevin, and Hadley Wickham. 2021. withr: Run Code 'With' Temporarily 
           Modified Global State. R package version 2.4.2. Available from
           https://CRAN.R-project.org/package=withr."
+        ),
+        p(
+          class = "hangingindent",
+          "Xie, Y., Cheng, J., Tan, X., Allaire, J., Girlich, M., Ellis, G.F.,
+            and Rauh, J. (2020), DT: A Wrapper of the JavaScript Library
+            'DataTables', R Package. Available from
+            https://cran.r-project.org/web/packages/DT/index.html"
         ),
         br(),
         br(),
@@ -712,15 +725,6 @@ server <- function(input, output, session) {
         mapping = aes(x = x, y = y), 
         data = df
       ) +
-        geom_smooth(
-          formula = y ~ x, 
-          method = "glm", 
-          linewidth = 1.5, 
-          color = boastUtils::psuPalette[4],
-          method.args = list(family = "binomial"), 
-          se = FALSE
-        ) +
-        geom_point() +
         labs(
           x = "Explanatory Variable",
           y = "Observed Bernoulli",
@@ -732,6 +736,16 @@ server <- function(input, output, session) {
           axis.title = element_text(size = 18),
           plot.title = element_text(size = 18, face = "bold",hjust = 0.5),
         ) 
+      if (input$showFP == TRUE) {
+        p <- p + geom_smooth(
+          formula = y ~ x, 
+          method = "glm", 
+          linewidth = 1.5, 
+          color = boastUtils::psuPalette[4],
+          method.args = list(family = "binomial"), 
+          se = FALSE
+        ) 
+      }
       if (input$showCI == TRUE) {
         p <- p + geom_ribbon(
           stat = "smooth", 
@@ -742,6 +756,7 @@ server <- function(input, output, session) {
           formula = y ~ x
         )
       }
+      p <- p + geom_point()
       p
     }
   )
@@ -810,32 +825,48 @@ server <- function(input, output, session) {
     return(hl)
   }
 
-  output$lemeshowTest <- renderPrint(
+  # NOT NEEDED???
+  # output$lemeshowTest <- renderPrint(
+  #   expr = {
+  #     hl <- hlResult()
+  #     hl
+  #   }
+  # )
+
+  output$lemeshowDF <- DT::renderDT(
     expr = {
       hl <- hlResult()
-      hl
-    }
-  )
-  
-  output$lemeshowDF <- renderTable(
-    {
-      hl <- hlResult()
-      hs <- data.frame(hl$statistic, hl$parameter, hl$p.value)
+      hs <- data.frame(
+        round(hl$statistic, digits = 2), 
+        round(hl$parameter, digits = 2), 
+        round(hl$p.value, digits = 2)
+        )
       names(hs) <- c("χ2", "df", "p-value")
-      rownames(hs) <- NULL
       hs
     },
-    striped = TRUE,
-    width = "100%",
-    align = "c",
-    hover = TRUE,
-    bordered = TRUE
+    rownames = FALSE,
+    options = list(
+      responsive = TRUE,
+      scrollX = TRUE,
+      paging = FALSE,  # Set to False for small tables
+      searching = FALSE,  # Set to False to turn of the search bar
+      ordering = FALSE,
+      info = FALSE,
+      columnDefs = list(
+        list(className = "dt-center", targets = "_all")
+      )
+    )
   )
-
-  output$obsexpDF <- renderTable(
+  
+  output$obsexpDF <- DT::renderDT(
     {
       hl <- hlResult()
-      hob <- data.frame(cbind(hl$expected, hl$observed))
+      hob <- data.frame(
+        cbind(
+          round(hl$expected, digits = 2),
+          round(hl$observed, digits = 2)
+        )
+      )
       hob <- setDT(hob, keep.rownames = TRUE)[]
       names(hob) <- c(
         "interval", "number of 0s expected", "number of 1s expected",
@@ -843,20 +874,26 @@ server <- function(input, output, session) {
       )
       hob
     },
-    striped = TRUE,
-    width = "100%",
-    align = "c",
-    hover = TRUE,
-    bordered = TRUE,
-    rownames = TRUE
+    options = list(
+      responsive = TRUE,
+      scrollX = TRUE,
+      paging = FALSE,  # Set to False for small tables
+      searching = FALSE,  # Set to False to turn of the search bar
+      ordering = FALSE,
+      info = FALSE,
+      columnDefs = list(
+        list(className = "dt-center", targets = "_all")
+      )
+    )
   )
-
-  output$obsExp <- renderPrint(
-    expr = {
-      hl <- hlResult()
-      cbind(hl$expected, hl$observed)
-    }
-  )
+  
+# NOT NEEDED???
+  # output$obsExp <- renderPrint(
+  #   expr = {
+  #     hl <- hlResult()
+  #     cbind(hl$expected, hl$observed)
+  #   }
+  # )
   
   ## Set the Data Collection ----
   dataCollection <- eventReactive(
