@@ -192,11 +192,16 @@ ui <- dashboardPage(
                   ),
                   sliderInput(
                     inputId = "ci",
-                    label = "confidence interval level:",
+                    label = "Confidence interval level:",
                     min = 0,
                     max = 0.99,
                     value = 0.95,
                     step = 0.01
+                  ),
+                  checkboxInput(
+                    inputId = "showCI",
+                    label = "Show confidence interval",
+                    value = TRUE
                   ),
                   selectInput(
                     inputId = "residualType",
@@ -218,9 +223,10 @@ ui <- dashboardPage(
               ),
               column(
                 width = 7,
-                plotlyOutput("logPlot", width = "98%", height = "300px") %>% 
+                plotOutput("logPlot", width = "98%") %>% 
                   withSpinner(color = boastUtils::psuPalette[4]),
                 br(),
+                #
                 tableOutput("citable"),
                 plotOutput("residualPlot", width = "100%", height = "330px") %>% 
                   withSpinner(color =  boastUtils::psuPalette[4]),
@@ -240,6 +246,7 @@ ui <- dashboardPage(
                           trigger = "hover", placement = "left"),
                 bsPopover("obsexpDF", " ", "There are 10 rows meaning g=10.", 
                           trigger = "hover", placement = "left")
+                #
               )
             ),
             # set continue button
@@ -697,11 +704,10 @@ server <- function(input, output, session) {
   )
   
   ## Logistic Plot ----
-  output$logPlot <- renderPlotly(
+  output$logPlot <- renderPlot(
     expr = {
       input$newSample
       df <- isolate(commonDf())
-      theme_set(theme_bw())
       p <- ggplot(
         mapping = aes(x = x, y = y), 
         data = df
@@ -709,30 +715,34 @@ server <- function(input, output, session) {
         geom_smooth(
           formula = y ~ x, 
           method = "glm", 
-          linewidth = 1, 
+          linewidth = 1.5, 
           color = boastUtils::psuPalette[4],
           method.args = list(family = "binomial"), 
           se = FALSE
         ) +
-        geom_ribbon(
-          mapping = aes(linetype = "confidence interval"),
+        geom_point() +
+        labs(
+          x = "Explanatory Variable",
+          y = "Observed Bernoulli",
+          title = "Logistic Regression Model \n"
+        ) +
+        theme_bw() +
+        theme(
+          legend.position = "bottom",
+          axis.title = element_text(size = 18),
+          plot.title = element_text(size = 18, face = "bold",hjust = 0.5),
+        ) 
+      if (input$showCI == TRUE) {
+        p <- p + geom_ribbon(
           stat = "smooth", 
           method = "glm", 
           alpha = 0.15,
           level = input$ci, 
           method.args = list(family = "binomial"),
           formula = y ~ x
-        ) +
-        geom_point() +
-        ylab("Observed Bernoulli") +
-        xlab("explanatory variable") +
-        ggtitle("Logistic Regression Model \n") +
-        scale_linetype_manual(name = "", values = c("confidence interval")) +
-        theme(
-          text = element_text(size = 12)
         )
-      p <- with_options(list(digits = 1), ggplotly(p)) %>%
-        layout(legend = list(x = 0.05, y = 0.9))
+      }
+      p
     }
   )
   
