@@ -136,7 +136,9 @@ ui <- dashboardPage(
                   Best results are no patterns or no extremely large residuals "),
           tags$li("Hosmer and Lemeshow test check the goodness of fit in the model 
                   where data is divided into recommended 10 groups. The p-value 
-                  can determine the significance of the result."),
+                  can determine the significance of the result. The number of subgroups,
+                      g, usually uses the formula g > P + 1. P is number of
+                      covariates. Degree of freedom equals g-2."),
           tags$li("Hosmer-Lemeshow Test Statstics"),
           div("\\[{\\sum_{i=1}^g}{\\sum_{j=1}^2}{{(obs_{ij} - exp_{ij})^2}}\\]"),
         ),
@@ -199,11 +201,6 @@ ui <- dashboardPage(
                     step = 0.01
                   ),
                   checkboxInput(
-                    inputId = "showFP",
-                    label = "Show fitted probability",
-                    value = TRUE
-                  ),
-                  checkboxInput(
                     inputId = "showCI",
                     label = "Show confidence interval",
                     value = TRUE
@@ -231,33 +228,14 @@ ui <- dashboardPage(
                 plotOutput("logPlot", width = "98%") %>% 
                   withSpinner(color = boastUtils::psuPalette[4]),
                 br(),
-                # NOT NEEDED???
-                # tableOutput("citable"),
                 plotOutput("residualPlot", width = "100%", height = "330px") %>% 
                   withSpinner(color =  boastUtils::psuPalette[4]),
               )
             ),
-            # NOT NEEDED???
-            # tags$style(
-            #   type = "text/css", "#lemeshowTest, #obsExp
-            #            {background-color: rgba(249, 105, 14, 1); color: yellow;
-            #            text-align: center}", "#title{color: blackl;
-            #            padding-left:2.5em; font-size: 22px}"
-            # ),
             br(),
             h3(strong(id = "title", "Hosmer and Lemeshow goodness of fit test"), align = 'center'),
             DT::DTOutput(outputId = "lemeshowDF"),
             DT::DTOutput(outputId = "obsexpDF"),
-            # NOT NEEDED???
-            # bsPopover("lemeshowDF", " ", "The Hosmer-Lemeshow Test is a goodness
-            #           of fit test for the logistic model. Here is the result of 
-            #           the Hosmer-Lemeshow Test for ten groups. Number of subgroups,
-            #           g, usually uses the formula g > P + 1. P is number of 
-            #           covariates. Degree of freedom equals g-2.", 
-            #           trigger = "hover", placement = "left"),
-            # 
-            # bsPopover("obsexpDF", " ", "There are 10 rows meaning g=10.", 
-            #           trigger = "hover", placement = "left"),
             # set continue button
             br(),
             div(
@@ -707,14 +685,23 @@ server <- function(input, output, session) {
     df <- data.frame(x, y)
     return(df)
   }
-
-  ## common objects ----
-  commonDf <- reactive(
+  
+  commonDf <- reactiveVal(NULL)
+  
+  observe(
     x = {
-      df(input$b0, input$b1, input$sampleSize)
+      if (is.null(commonDf())) {
+        commonDf(df(input$b0, input$b1, input$sampleSize))
+      }
     }
   )
   
+  observeEvent(
+    eventExpr = input$newSample,
+    handlerExpr = {
+      commonDf(df(input$b0, input$b1, input$sampleSize))
+    }
+  )
   ## Logistic Plot ----
   output$logPlot <- renderPlot(
     expr = {
@@ -734,9 +721,8 @@ server <- function(input, output, session) {
           legend.position = "bottom",
           axis.title = element_text(size = 18),
           plot.title = element_text(size = 18, face = "bold",hjust = 0.5),
-        ) 
-      if (input$showFP == TRUE) {
-        p <- p + geom_smooth(
+        ) +
+       geom_smooth(
           formula = y ~ x, 
           method = "glm", 
           linewidth = 1.5, 
@@ -744,7 +730,6 @@ server <- function(input, output, session) {
           method.args = list(family = "binomial"), 
           se = FALSE
         ) 
-      }
       if (input$showCI == TRUE) {
         p <- p + geom_ribbon(
           stat = "smooth", 
@@ -824,14 +809,6 @@ server <- function(input, output, session) {
     return(hl)
   }
 
-  # NOT NEEDED???
-  # output$lemeshowTest <- renderPrint(
-  #   expr = {
-  #     hl <- hlResult()
-  #     hl
-  #   }
-  # )
-
   output$lemeshowDF <- DT::renderDT(
     expr = {
       hl <- hlResult()
@@ -885,14 +862,6 @@ server <- function(input, output, session) {
       )
     )
   )
-  
-# NOT NEEDED???
-  # output$obsExp <- renderPrint(
-  #   expr = {
-  #     hl <- hlResult()
-  #     cbind(hl$expected, hl$observed)
-  #   }
-  # )
   
   ## Set the Data Collection ----
   dataCollection <- eventReactive(

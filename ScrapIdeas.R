@@ -156,3 +156,32 @@ output$obsexpDF2 <- renderTable(
   bordered = TRUE,
   rownames = TRUE
 )
+
+
+
+# NOT NEEDED???
+# tableOutput("citable"),
+
+# NOT NEEDED???
+# tags$style(
+#   type = "text/css", "#lemeshowTest, #obsExp
+#            {background-color: rgba(249, 105, 14, 1); color: yellow;
+#            text-align: center}", "#title{color: blackl;
+#            padding-left:2.5em; font-size: 22px}"
+# ),
+
+# NOT NEEDED???
+# output$lemeshowTest <- renderPrint(
+#   expr = {
+#     hl <- hlResult()
+#     hl
+#   }
+# )
+
+# NOT NEEDED???
+# output$obsExp <- renderPrint(
+#   expr = {
+#     hl <- hlResult()
+#     cbind(hl$expected, hl$observed)
+#   }
+# )
