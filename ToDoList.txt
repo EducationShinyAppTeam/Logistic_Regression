@@ -1,0 +1,19 @@
+# Things Needed for This Version
+
+1. Fix Console Messages: 
+    `geom_smooth()` using formula = 'y ~ x' ✓ 
+    
+    New Messages Found using Titanic data: ✓ 
+    
+    Warning: Removed 1 rows containing non-finite values (`stat_smooth()`). ✓ 
+    Warning: Removed 1 rows containing missing values (`geom_point()`). ✓
+    
+2. Add appropriate text to Alt arguments. ✓ 
+
+3. Update References ✓ 
+
+# Ideas for Future Development
+
+1.Improve prereq's(Maybe add collapsable tabs?)
+2. Find use for the code in the ScrapIdeas file.
+
