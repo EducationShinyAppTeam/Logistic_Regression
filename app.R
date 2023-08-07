@@ -126,6 +126,7 @@ ui <- dashboardPage(
           tags$li("The logistic regression model explains the relationship 
                   between one (or more) explanatory 
                   variable and the binary outcome."),
+          br(),
           tags$li("In the logistic regression the constant \\(\\beta_0\\) moves 
                   the curve left and right and the slope \\(\\beta_1\\) defines 
                   the steepness of the curve."),
@@ -134,12 +135,23 @@ ui <- dashboardPage(
           div("\\[{logit ( \\hat p )=log({ \\hat p\\over1-\\hat p})}\\]"),
           tags$li("Deviance Residual and Pearson Residual check the model fit. 
                   Best results are no patterns or no extremely large residuals "),
+          br(),
           tags$li("Hosmer and Lemeshow test check the goodness of fit in the model 
-                  where data is divided into recommended 10 groups. The p-value 
-                  can determine the significance of the result. The number of subgroups,
+                  where data is divided into g groups, in which g is recomended to equal 10.
+                  Because of the arbitrary nature of picking g, the test has very low power with small sample sizes.
+                  With this app, the following rules are put in place to determine g:",
+                  tags$ol(
+                    br(),
+                    tags$li("The minimum sample size is n = 10."),
+                    tags$li("g = 10 when n > 30."),
+                    tags$li("g = floor of n/3 when 10≤n≤30.")
+                  ),
+                  br(),
+                  "The p-value can determine the significance of the result. The number of subgroups,
                       g, usually uses the formula g > P + 1. P is number of
                       covariates. Degree of freedom equals g-2."),
-          tags$li("Hosmer-Lemeshow Test Statstics"),
+          br(),
+          tags$li("Hosmer-Lemeshow Test Statstics" ),
           div("\\[{\\sum_{i=1}^g}{\\sum_{j=1}^2}{{(obs_{ij} - exp_{ij})^2}}\\]"),
         ),
         div(
@@ -162,9 +174,11 @@ ui <- dashboardPage(
             ###### Single Regression
             "Single Logistic Regression",
             h2("Single Logistic Regression"),
-            tags$ul(tags$li("Adjust the sliders to change the sample size and 
+            tags$ul(
+              tags$li("Adjust the sliders to change the sample size and 
                             corresponding beta coefficients."),
-                    tags$li("Click the 'New Sample' button to generate a new plot.")),
+              tags$li("Click the 'New Sample' button to generate a new plot.")
+            ),
             br(),
             fluidRow(
               column(
@@ -173,7 +187,7 @@ ui <- dashboardPage(
                   sliderInput(
                     inputId = "sampleSize",
                     label = "Set sample size:",
-                    min = 2,
+                    min = 10,
                     max = 300,
                     value = 150,
                     step = 1
@@ -233,9 +247,22 @@ ui <- dashboardPage(
               )
             ),
             br(),
-            h3(strong(id = "title", "Hosmer and Lemeshow goodness of fit test"), align = 'center'),
-            DT::DTOutput(outputId = "lemeshowDF"),
+            h3(strong(id = "title", "Hosmer and Lemeshow Goodness of Fit Test"), align = 'center'),
             DT::DTOutput(outputId = "obsexpDF"),
+            DT::DTOutput(outputId = "lemeshowDF"),
+            br(),
+            conditionalPanel(
+              condition = "input.sampleSize < 100",
+              textOutput("caution"),
+              tags$head(
+                tags$style(
+                  "#caution{color: #E98300;
+                                 font-size: 20px;
+                                 font-style: italic;
+                                 }"
+                )
+              )
+            ),
             # set continue button
             br(),
             div(
@@ -700,6 +727,11 @@ server <- function(input, output, session) {
     eventExpr = input$newSample,
     handlerExpr = {
       commonDf(df(input$b0, input$b1, input$sampleSize))
+      updateActionButton(
+        inputId = "newSample", 
+        label = "New Sample", 
+        icon = icon("retweet")
+      )
     }
   )
   ## Logistic Plot ----
@@ -742,7 +774,22 @@ server <- function(input, output, session) {
       }
       p <- p + geom_point()
       p
-    }
+    },
+    alt = reactive(
+      paste0(
+        "This logistic plot ",
+        if (input$b1 > 0) {
+          "displays a negative slope. "
+        } else if (input$b1 < 0) {
+          "displays a positive slope. "
+        } else {
+          "displays a slope of 0. "
+        },
+        "And, there are ",
+        input$sampleSize,
+        " points with Observed Bernoulli of either 0 or 1"
+      )
+    )
   )
   
   output$residualPlot <- renderPlot(
@@ -795,7 +842,23 @@ server <- function(input, output, session) {
       )
     )
   )
-
+  
+## Implement rule for g ----
+  gRule <- function(sampleSize) {
+    if (sampleSize > 30) {
+      g <- 10
+    } else {
+      g <- floor(sampleSize/3)
+    }
+      return(g)
+  }
+  
+  output$caution <- renderText(
+    expr = {
+      paste0("Caution: The Hosmer-Lemeshow test has very low power in this situation")
+    }
+  )
+  
   ## Goodness of fit ----
   hlResult <- function() {
     input$newSample
@@ -805,20 +868,26 @@ server <- function(input, output, session) {
       data = df,
       family = "binomial"
     )
-    hl <- hoslem.test(mod$y, fitted(mod))
+    # g formula for function
+    hl <- hoslem.test(mod$y, fitted(mod), gRule(input$sampleSize))
     return(hl)
   }
-
+  
   output$lemeshowDF <- DT::renderDT(
     expr = {
-      hl <- hlResult()
-      hs <- data.frame(
-        round(hl$statistic, digits = 2), 
-        round(hl$parameter, digits = 2), 
-        round(hl$p.value, digits = 2)
-        )
-      names(hs) <- c("χ2", "df", "p-value")
-      hs
+      input$newSample
+      isolate(
+        expr =  {
+          hl <- hlResult()
+          hs <- data.frame(
+            round(hl$statistic, digits = 2), 
+            round(hl$parameter, digits = 2), 
+            round(hl$p.value, digits = 2)
+          )
+          names(hs) <- c("χ2", "df", "p-value")
+          hs  
+        }
+      )
     },
     rownames = FALSE,
     options = list(
@@ -835,20 +904,25 @@ server <- function(input, output, session) {
   )
   
   output$obsexpDF <- DT::renderDT(
-    {
-      hl <- hlResult()
-      hob <- data.frame(
-        cbind(
-          round(hl$expected, digits = 2),
-          round(hl$observed, digits = 2)
-        )
+    expr = {
+      input$newSample
+      isolate(
+        expr =  {
+          hl <- hlResult()
+          hob <- data.frame(
+            cbind(
+              round(hl$expected, digits = 2),
+              round(hl$observed, digits = 2)
+            )
+          )
+          hob <- setDT(hob, keep.rownames = TRUE)[]
+          colnames(hob) <- c(
+            "interval", "number of 0s expected", "number of 1s expected",
+            "number of 0s in group", "number of 1s in group"
+          )
+          hob 
+        }
       )
-      hob <- setDT(hob, keep.rownames = TRUE)[]
-      names(hob) <- c(
-        "interval", "number of 0s expected", "number of 1s expected",
-        "number of 0s in group", "number of 1s in group"
-      )
-      hob
     },
     options = list(
       responsive = TRUE,
