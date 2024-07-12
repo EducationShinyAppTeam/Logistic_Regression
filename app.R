@@ -1,4 +1,5 @@
 # Load Package ----
+install.packages("ResourceSelection")
 library(boastUtils)
 library(ggplot2)
 library(DT)
@@ -104,7 +105,7 @@ ui <- dashboardPage(
         br(),
         h2("Acknowledgements"),
         p("This app was developed and coded by Yiyun Gong and Ruisi Wang. 
-          This app was further updated by Wanyi Su and Sean Burke. Special thanks 
+          This app was further updated by Wanyi Su, Sean Burke, and Davis Jiwoo Im. Special thanks 
           to Hatfield, Neil J."),
         br(),
         br(),
@@ -114,7 +115,7 @@ ui <- dashboardPage(
         citeApp(),
         br(),
         br(),
-        div(class = "updated", "Last Update: 05/24/2023 by SB.")
+        div(class = "updated", "Last Update: 07/12/2024 by DJI.")
       ),
       #### Set up the Prerequisites Page ----
       tabItem(
@@ -332,6 +333,7 @@ ui <- dashboardPage(
         h2("Game Section"),
         p("Answer the questions below and reach a score of at least 20 within 10 
           questions to win!"),
+        p("(The score is determined by the dice.)"),
         br(),
         fluidRow(
           column(
