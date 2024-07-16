@@ -1,5 +1,4 @@
 # Load Package ----
-install.packages("ResourceSelection")
 library(boastUtils)
 library(ggplot2)
 library(DT)
@@ -68,44 +67,44 @@ ui <- dashboardPage(
       tabItem(
         tabName = "overview",
         h1("Logistic Regression"),
-        p("This app allows you to explore how different factors can affect the 
+        p("This app allows you to explore how different factors can affect the
           outcome of the Logistic Regression Model and Empirical Logit Plot."),
         br(),
         h2("Instructions"),
-        tags$ol(tags$li("This app includes Single Logistic Regression with simulated 
+        tags$ol(tags$li("This app includes Single Logistic Regression with simulated
                         data and the Empirical Logit Plot with real datasets."),
-        tags$li("Click the New Sample button to generate the plot. Watch the change 
+        tags$li("Click the New Sample button to generate the plot. Watch the change
                 of the plot when dragging the slider of confidence interval."),
-        tags$li("In the Empirical Logit Plot, select desired predictors from 
+        tags$li("In the Empirical Logit Plot, select desired predictors from
                 the menu and see how the plot changes accordingly."),
-        tags$li("After working with the Explore section, you can start the game 
+        tags$li("After working with the Explore section, you can start the game
                 to test your understanding of the concepts."),
-        tags$li("Practice the questions in the Game Section. For each question you 
+        tags$li("Practice the questions in the Game Section. For each question you
                 get right, you will get a chance to roll the dice."),
-        tags$li("If the cumulative total for your dice roll reaches 20 within 
+        tags$li("If the cumulative total for your dice roll reaches 20 within
                 10 questions, YOU WIN!")
         ),
         br(),
         div(
           style = "text-align: center",
           bsButton(
-            inputId = "goToPrereq", 
-            label = "Prerequisites!", 
-            icon = icon("book"), 
-            size = "large", 
+            inputId = "goToPrereq",
+            label = "Prerequisites!",
+            icon = icon("book"),
+            size = "large",
             class = "circle grow"
           )
         ),
         br(),
         h2("About the data"),
-        p("The datasets and the procedures for the empirical logit plot are adopted 
-          from Stat2: Models for a World of Data by Cannon, Cobb, Hartlaub, Legler, 
+        p("The datasets and the procedures for the empirical logit plot are adopted
+          from Stat2: Models for a World of Data by Cannon, Cobb, Hartlaub, Legler,
           Lock, Moore, Rossman, and Witmer."),
         br(),
         br(),
         h2("Acknowledgements"),
-        p("This app was developed and coded by Yiyun Gong and Ruisi Wang. 
-          This app was further updated by Wanyi Su, Sean Burke, and Davis Jiwoo Im. Special thanks 
+        p("This app was developed and coded by Yiyun Gong and Ruisi Wang.
+          This app was further updated by Wanyi Su, Sean Burke, and Davis Jiwoo Im. Special thanks
           to Hatfield, Neil J."),
         br(),
         br(),
@@ -124,20 +123,20 @@ ui <- dashboardPage(
         h2("Logistic Regression Analysis"),
         br(),
         tags$ul(
-          tags$li("The logistic regression model explains the relationship 
-                  between one (or more) explanatory 
+          tags$li("The logistic regression model explains the relationship
+                  between one (or more) explanatory
                   variable and the binary outcome."),
           br(),
-          tags$li("In the logistic regression the constant \\(\\beta_0\\) moves 
-                  the curve left and right and the slope \\(\\beta_1\\) defines 
+          tags$li("In the logistic regression the constant \\(\\beta_0\\) moves
+                  the curve left and right and the slope \\(\\beta_1\\) defines
                   the steepness of the curve."),
           div("\\[{ln({p\\over1-p})} = {\\beta_0+\\beta_1x}\\]"),
           tags$li("Empirical logit plot is used to check the linearity for datasets."),
           div("\\[{logit ( \\hat p )=log({ \\hat p\\over1-\\hat p})}\\]"),
-          tags$li("Deviance Residual and Pearson Residual check the model fit. 
+          tags$li("Deviance Residual and Pearson Residual check the model fit.
                   Best results are no patterns or no extremely large residuals "),
           br(),
-          tags$li("Hosmer and Lemeshow test check the goodness of fit in the model 
+          tags$li("Hosmer and Lemeshow test check the goodness of fit in the model
                   where data is divided into g groups, in which g is recomended to equal 10.
                   Because of the arbitrary nature of picking g, the test has very low power with small sample sizes.
                   With this app, the following rules are put in place to determine g:",
@@ -158,10 +157,10 @@ ui <- dashboardPage(
         div(
           style = "text-align: center",
             bsButton(
-              inputId = "goToExplore", 
-              label = "Explore", 
+              inputId = "goToExplore",
+              label = "Explore",
               icon = icon("bolt"),
-              size = "large", 
+              size = "large",
               class = "circle grow"
           )
         )
@@ -176,7 +175,7 @@ ui <- dashboardPage(
             "Single Logistic Regression",
             h2("Single Logistic Regression"),
             tags$ul(
-              tags$li("Adjust the sliders to change the sample size and 
+              tags$li("Adjust the sliders to change the sample size and
                             corresponding beta coefficients."),
               tags$li("Click the 'New Sample' button to generate a new plot.")
             ),
@@ -228,11 +227,11 @@ ui <- dashboardPage(
                   ),
                   br(),
                   actionButton(
-                    inputId = "newSample", 
-                    label = "New Sample", 
+                    inputId = "newSample",
+                    label = "New Sample",
                     icon = icon("paper-plane"),
-                    class = "btn btn-lg", 
-                    style = "color: #fff", 
+                    class = "btn btn-lg",
+                    style = "color: #fff",
                     class = "circle grow"
                   ),
                   br()
@@ -240,10 +239,10 @@ ui <- dashboardPage(
               ),
               column(
                 width = 7,
-                plotOutput("logPlot", width = "98%") %>% 
+                plotOutput("logPlot", width = "98%") %>%
                   withSpinner(color = boastUtils::psuPalette[4]),
                 br(),
-                plotOutput("residualPlot", width = "100%", height = "330px") %>% 
+                plotOutput("residualPlot", width = "100%", height = "330px") %>%
                   withSpinner(color =  boastUtils::psuPalette[4]),
               )
             ),
@@ -271,8 +270,8 @@ ui <- dashboardPage(
               bsButton(
                 inputId = "goToGame",
                 label = "Play the game!",
-                icon = icon("bolt"), 
-                size = "large", 
+                icon = icon("bolt"),
+                size = "large",
                 class = "circle grow"
               )
             )
@@ -283,11 +282,11 @@ ui <- dashboardPage(
             h2("Empirical Logit Plot"),
             h3("Process of creating an empirical logit plot for quantitative predictors"),
             tags$ol(
-              tags$li("Divide the range of the predictor into intervals 
+              tags$li("Divide the range of the predictor into intervals
                             with roughly equal numbers of cases."),
-              tags$li("Compute the mean value of the predictor and the 
+              tags$li("Compute the mean value of the predictor and the
                             empirical logit for each interval."),
-              tags$li("Plot logit versus the mean value of the predictor, 
+              tags$li("Plot logit versus the mean value of the predictor,
                             with one point for each interval.")),
             br(),
             fluidRow(
@@ -320,7 +319,7 @@ ui <- dashboardPage(
               ),
               column(
                 width = 7,
-                plotOutput(outputId = "empiricalLogitPlot", width = "100%") %>% 
+                plotOutput(outputId = "empiricalLogitPlot", width = "100%") %>%
                   withSpinner(color =  boastUtils::psuPalette[4])
               )
             )
@@ -331,7 +330,7 @@ ui <- dashboardPage(
       tabItem(
         tabName = "game",
         h2("Game Section"),
-        p("Answer the questions below and reach a score of at least 20 within 10 
+        p("Answer the questions below and reach a score of at least 20 within 10
           questions to win!"),
         p("(The score is determined by the dice.)"),
         br(),
@@ -345,8 +344,8 @@ ui <- dashboardPage(
               uiOutput("options"),
               br(),
               selectInput(
-                inputId = "answer", 
-                label = "Select your answer from below", 
+                inputId = "answer",
+                label = "Select your answer from below",
                 choices = c("", "A", "B", "C")
               ),
               uiOutput("mark"),
@@ -360,13 +359,13 @@ ui <- dashboardPage(
             tags$head(tags$style(HTML(mycss))),
             fluidRow(
               column(
-                width = 12, 
-                align = "center", 
+                width = 12,
+                align = "center",
                 uiOutput("gameScore")
               ),
               column(
-                width = 12, 
-                align = "center", 
+                width = 12,
+                align = "center",
                 div(
                   uiOutput("dice", width = "100%")
                 )
@@ -380,32 +379,32 @@ ui <- dashboardPage(
             width = 6,
             align = "center",
             div(
-              style = "display: inline-block", 
+              style = "display: inline-block",
               actionButton(
-                inputId = "submit", 
+                inputId = "submit",
                 label = "Submit"
               )
             ),
             div(
-              style = "display: inline-block;vertical-align:top; width: 30px;", 
+              style = "display: inline-block;vertical-align:top; width: 30px;",
               HTML("<br>")
             ),
             div(
               style = "display: inline-block",
               bsButton(
-                inputId = "nextQuestion", 
-                label = "Next", 
+                inputId = "nextQuestion",
+                label = "Next",
                 disabled = TRUE
               )
             ),
             div(
-              style = "display: inline-block;vertical-align:top; width: 30px;", 
+              style = "display: inline-block;vertical-align:top; width: 30px;",
               HTML("<br>")
             ),
             div(
               style = "display: inline-block",
               bsButton(
-                inputId = "restart", 
+                inputId = "restart",
                 label = "Restart"
               )
             )
@@ -419,8 +418,8 @@ ui <- dashboardPage(
         h2("References"),
         p(
           class = "hangingindent",
-          "Attali, D.(2020). 
-            shinyjs: Easily Improve the User Experience of Your Shiny Apps in Seconds. R package version 2.0.0 [R Package]. 
+          "Attali, D.(2020).
+            shinyjs: Easily Improve the User Experience of Your Shiny Apps in Seconds. R package version 2.0.0 [R Package].
             Available from https://CRAN.R-project.org/package=shinyjs"
         ),
         p(
@@ -431,13 +430,13 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
-          "Carey, R. (2019). boastUtils: BOAST Utilities, R Package. 
+          "Carey, R. (2019). boastUtils: BOAST Utilities, R Package.
           Available from https://github.com/EducationShinyAppTeam/boastUtils"
         ),
         p(
           class = "hangingindent",
-          "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create 
-          dashboards with 'Shiny', R Package. Available from 
+          "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create
+          dashboards with 'Shiny', R Package. Available from
           https://CRAN.R-project.org/package=shinydashboard"
         ),
         p(
@@ -448,9 +447,9 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
-          "Dowle, Matt, and Arun Srinivasan. (2021). data.table: Extension of data.frame. 
+          "Dowle, Matt, and Arun Srinivasan. (2021). data.table: Extension of data.frame.
           R package version 1.14.8. Available from https://CRAN.R-project.org/package=data.table."
-          
+
         ),
         p(
           class = "hangingindent",
@@ -465,43 +464,43 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
-          "Hosmer, D. W., and Stanley Lemeshow. (2000). Applied Logistic Regression. 
+          "Hosmer, D. W., and Stanley Lemeshow. (2000). Applied Logistic Regression.
           John Wiley & Sons."
           ),
         p(
           class = "hangingindent",
-          "Niedballa, Jürgen, and Matthias Lindenborn. (2016). resourceselection: 
-          Resource Selection (Probability) Functions for Use-Availability Data. 
-          R package version 0.3-5. Available from 
+          "Niedballa, Jürgen, and Matthias Lindenborn. (2016). resourceselection:
+          Resource Selection (Probability) Functions for Use-Availability Data.
+          R package version 0.3-5. Available from
           https://CRAN.R-project.org/package=resourceselection."
         ),
         p(
           class = "hangingindent",
-          "Perrier, V., Meyer, F., and Granjon, D. (2020). shinyWidgets: 
-            Custom Inputs Widgets for Shiny. R package version 0.5.3. Available 
+          "Perrier, V., Meyer, F., and Granjon, D. (2020). shinyWidgets:
+            Custom Inputs Widgets for Shiny. R package version 0.5.3. Available
             from https://CRAN.R-project.org/package=shinyWidgets"
         ),
         p(
           class = "hangingindent",
-          "R DATA ANALYSIS EXAMPLES. UCLA. LOGIT REGRESSION. Available from 
+          "R DATA ANALYSIS EXAMPLES. UCLA. LOGIT REGRESSION. Available from
           https://stats.idre.ucla.edu/r/dae/logit-regression/"
         ),
         p(
           class = "hangingindent",
-          "Wickham, H. (2011), “The Split-apply-combine strategy for data 
-          analysis.” Journal of Statistical Software, 40, pp. 1-29.Available 
+          "Wickham, H. (2011), “The Split-apply-combine strategy for data
+          analysis.” Journal of Statistical Software, 40, pp. 1-29.Available
           from http://www.jstatsoft.org/v40/i01/."
         ),
         p(
           class = "hangingindent",
-          "Wickham, H., Chang, W., Henry, L., Pedersen, T.L., Takahashi, K., 
-            Wilke, C., Woo, K., Yutani, H., Dunnington, D.  (2020). ggplot2: 
+          "Wickham, H., Chang, W., Henry, L., Pedersen, T.L., Takahashi, K.,
+            Wilke, C., Woo, K., Yutani, H., Dunnington, D.  (2020). ggplot2:
             Create Elegant Data Visualisations Using the Grammar of Graphics. R package
             version 3.3.3. Available from https://CRAN.R-project.org/package=ggplot2"
         ),
         p(
           class = "hangingindent",
-          "Wickham, H., François, R., Henry, L., Müller, K. (2021). dplyr: A 
+          "Wickham, H., François, R., Henry, L., Müller, K. (2021). dplyr: A
             Grammar of Data Manipulation. R package version 1.0.6. Available from
             https://CRAN.R-project.org/package=dplyr"
         ),
@@ -513,7 +512,7 @@ ui <- dashboardPage(
         ),
         p(
           class = "hangingindent",
-          "Ushey, Kevin, and Hadley Wickham. 2021. withr: Run Code 'With' Temporarily 
+          "Ushey, Kevin, and Hadley Wickham. 2021. withr: Run Code 'With' Temporarily
           Modified Global State. R package version 2.4.2. Available from
           https://CRAN.R-project.org/package=withr."
         ),
@@ -528,7 +527,7 @@ ui <- dashboardPage(
         br(),
         br(),
         boastUtils::copyrightInfo()
-      ) 
+      )
     )
   )
 )
@@ -544,7 +543,7 @@ server <- function(input, output, session) {
         session = session,
         type = "info",
         title = "Information",
-        text = "This app explores Simple Logistic Regression with  both simulated 
+        text = "This app explores Simple Logistic Regression with  both simulated
         and real data."
       )
     }
@@ -604,61 +603,61 @@ server <- function(input, output, session) {
       )
     }
   )
-  
+
   ## Update Response Options for empirical logit plot ----
   observeEvent(
-    eventExpr = input$dataTable, 
+    eventExpr = input$dataTable,
     handlerExpr = {
       if (input$dataTable == 'MedGPA') {
         updateSelectInput(
-          session = session, 
-          inputId = "yVar", 
+          session = session,
+          inputId = "yVar",
           label = "Select Response Y",
           choices = c("Acceptance")
-        ) 
+        )
       } else if (input$dataTable == "Titanic") {
         updateSelectInput(
-          session = session, 
-          inputId = "yVar", 
+          session = session,
+          inputId = "yVar",
           label = "Select Response Y",
           choices = c("Survived")
-        ) 
+        )
       } else if (input$dataTable == "Leukemia") {
         updateSelectInput(
           session = session,
-          inputId = "yVar", 
+          inputId = "yVar",
           label = "Select Response Y",
           choices = c("Status")
-        ) 
+        )
       }
     }
   )
-  
+
   ## Update Predictor Options for empirical logit plot ----
   observeEvent(
-    eventExpr = input$dataTable, 
+    eventExpr = input$dataTable,
     handlerExpr = {
       if (input$dataTable == 'MedGPA') {
         updateSelectInput(
-          session = session, 
-          inputId = "xVar", 
+          session = session,
+          inputId = "xVar",
           label = "Select Quantitave Predictor X",
           choices = c("GPA", "MCAT", "BCPM")
-        ) 
+        )
       } else if (input$dataTable == "Titanic") {
         updateSelectInput(
-          session = session, 
-          inputId = "xVar", 
+          session = session,
+          inputId = "xVar",
           label = "Select Quantitave Predictor X",
           choices = c("Age")
-        ) 
+        )
       } else if (input$dataTable == "Leukemia") {
         updateSelectInput(
           session = session,
-          inputId = "xVar", 
+          inputId = "xVar",
           label = "Select Quantitave Predictor X",
           choices = c("Blasts", "Age", "Infil")
-        ) 
+        )
       }
     }
   )
@@ -668,7 +667,7 @@ server <- function(input, output, session) {
     eventExpr = input$goButtonMul,
     handlerExpr = {
       withBusyIndicatorServer(
-        "goButtonMul", 
+        "goButtonMul",
         {Sys.sleep(1)}
       )
     }
@@ -678,14 +677,14 @@ server <- function(input, output, session) {
     eventExpr = input$goButtonMul,
     handlerExpr = {
       withBusyIndicatorServer(
-        "goToGameButton", 
+        "goToGameButton",
         {Sys.sleep(1)}
       )
     }
   )
 
   observeEvent(
-    eventExpr = input$goButtonMul, 
+    eventExpr = input$goButtonMul,
     handlerExpr = {
       withBusyIndicatorServer(
         "go2Button",
@@ -714,9 +713,9 @@ server <- function(input, output, session) {
     df <- data.frame(x, y)
     return(df)
   }
-  
+
   commonDf <- reactiveVal(NULL)
-  
+
   observe(
     x = {
       if (is.null(commonDf())) {
@@ -724,14 +723,14 @@ server <- function(input, output, session) {
       }
     }
   )
-  
+
   observeEvent(
     eventExpr = input$newSample,
     handlerExpr = {
       commonDf(df(input$b0, input$b1, input$sampleSize))
       updateActionButton(
-        inputId = "newSample", 
-        label = "New Sample", 
+        inputId = "newSample",
+        label = "New Sample",
         icon = icon("retweet")
       )
     }
@@ -742,7 +741,7 @@ server <- function(input, output, session) {
       input$newSample
       df <- isolate(commonDf())
       p <- ggplot(
-        mapping = aes(x = x, y = y), 
+        mapping = aes(x = x, y = y),
         data = df
       ) +
         labs(
@@ -757,19 +756,19 @@ server <- function(input, output, session) {
           plot.title = element_text(size = 18, face = "bold",hjust = 0.5),
         ) +
        geom_smooth(
-          formula = y ~ x, 
-          method = "glm", 
-          linewidth = 1.5, 
+          formula = y ~ x,
+          method = "glm",
+          linewidth = 1.5,
           color = boastUtils::psuPalette[4],
-          method.args = list(family = "binomial"), 
+          method.args = list(family = "binomial"),
           se = FALSE
-        ) 
+        )
       if (input$showCI == TRUE) {
         p <- p + geom_ribbon(
-          stat = "smooth", 
-          method = "glm", 
+          stat = "smooth",
+          method = "glm",
           alpha = 0.15,
-          level = input$ci, 
+          level = input$ci,
           method.args = list(family = "binomial"),
           formula = y ~ x
         )
@@ -793,7 +792,7 @@ server <- function(input, output, session) {
       )
     )
   )
-  
+
   output$residualPlot <- renderPlot(
     expr = {
       input$newSample
@@ -811,19 +810,19 @@ server <- function(input, output, session) {
           ylab = "Pearson Residual",
           cex.axis = 1.3,
           cex.lab = 1.5,
-          cex.main = 1.5, 
+          cex.main = 1.5,
           pch = 16,
           las = 1
         )
       } else {
         p <- plot(
           residuals(logit, type = "deviance"),
-          type = "b", 
-          main = "Deviance Res- logit", 
+          type = "b",
+          main = "Deviance Res- logit",
           ylab = "Deviance Residual",
-          cex.axis = 1.3, 
+          cex.axis = 1.3,
           cex.lab = 1.5,
-          cex.main = 1.5, 
+          cex.main = 1.5,
           pch = 16,
           las = 1
         )
@@ -844,7 +843,7 @@ server <- function(input, output, session) {
       )
     )
   )
-  
+
 ## Implement rule for g ----
   gRule <- function(sampleSize) {
     if (sampleSize > 30) {
@@ -854,13 +853,13 @@ server <- function(input, output, session) {
     }
       return(g)
   }
-  
+
   output$caution <- renderText(
     expr = {
       paste0("Caution: The Hosmer-Lemeshow test has very low power in this situation")
     }
   )
-  
+
   ## Goodness of fit ----
   hlResult <- function() {
     input$newSample
@@ -874,7 +873,7 @@ server <- function(input, output, session) {
     hl <- hoslem.test(mod$y, fitted(mod), gRule(input$sampleSize))
     return(hl)
   }
-  
+
   output$lemeshowDF <- DT::renderDT(
     expr = {
       input$newSample
@@ -882,12 +881,12 @@ server <- function(input, output, session) {
         expr =  {
           hl <- hlResult()
           hs <- data.frame(
-            round(hl$statistic, digits = 2), 
-            round(hl$parameter, digits = 2), 
+            round(hl$statistic, digits = 2),
+            round(hl$parameter, digits = 2),
             round(hl$p.value, digits = 2)
           )
           names(hs) <- c("χ2", "df", "p-value")
-          hs  
+          hs
         }
       )
     },
@@ -904,7 +903,7 @@ server <- function(input, output, session) {
       )
     )
   )
-  
+
   output$obsexpDF <- DT::renderDT(
     expr = {
       input$newSample
@@ -922,7 +921,7 @@ server <- function(input, output, session) {
             "interval", "number of 0s expected", "number of 1s expected",
             "number of 0s in group", "number of 1s in group"
           )
-          hob 
+          hob
         }
       )
     },
@@ -938,7 +937,7 @@ server <- function(input, output, session) {
       )
     )
   )
-  
+
   ## Set the Data Collection ----
   dataCollection <- eventReactive(
     eventExpr = input$dataTable,
@@ -974,8 +973,8 @@ server <- function(input, output, session) {
             na.rm = TRUE
           )
           xGroups <- cut(
-            x = dataCollection()[, input$xVar], 
-            breaks = breaks, 
+            x = dataCollection()[, input$xVar],
+            breaks = breaks,
             labels = 1:input$ngroups,
             include.lowest = TRUE,
             right = FALSE
@@ -1019,13 +1018,13 @@ server <- function(input, output, session) {
           ") and ",
           input$xVar,
           ", along with ",
-          input$ngroups, 
+          input$ngroups,
           " intervals on the plot."
         )
       )
     }
  )
-  
+
   ## Timer for Dice and Success ----
   timer <- reactiveVal(1)
   active <- reactiveVal(FALSE)
@@ -1051,9 +1050,9 @@ server <- function(input, output, session) {
                       session = session,
                       title = "Congratulations!",
                       text = paste0(
-                        "You've successfully reached a score of ", 
+                        "You've successfully reached a score of ",
                         score(),
-                        " within 10 questions. Click the restart button to play 
+                        " within 10 questions. Click the restart button to play
                         again."
                       ),
                       type = "success"
@@ -1155,7 +1154,7 @@ server <- function(input, output, session) {
       )
     }
   )
-  
+
   # Pulls corresponding answer values from question bank and returns its text
   # bank for question
 
@@ -1177,10 +1176,10 @@ server <- function(input, output, session) {
 
   ## Question Counter ----
   questionCount <- reactiveVal(1)
-  
+
   ## Buttons Handle ----
   observeEvent(
-    eventExpr = input$nextQuestion, 
+    eventExpr = input$nextQuestion,
     handlerExpr = {
       if (questionCount() == 10) {
         updateButton(
@@ -1203,7 +1202,7 @@ server <- function(input, output, session) {
         indexList$list <- indexList$list[!indexList$list %in% value$index]
         value$index <- indexList$list[1]
         value$answerBox <- value$index
-        
+
         updateButton(
           session = session,
           inputId = "nextQuestion",
@@ -1218,14 +1217,14 @@ server <- function(input, output, session) {
           updateSelectInput(
             session = session,
             inputId = "answer",
-            label = "Select your answer from below", 
+            label = "Select your answer from below",
             choices = c("", "A", "B")
           )
         } else {
           updateSelectInput(
-            session = session, 
+            session = session,
             inputId = "answer",
-            label = "Select your answer from below", 
+            label = "Select your answer from below",
             choices = c("", "A", "B", "C")
           )
         }
@@ -1243,7 +1242,7 @@ server <- function(input, output, session) {
       }
     }
   )
-  
+
 
   observeEvent(
     eventExpr = input$submit,
@@ -1266,7 +1265,7 @@ server <- function(input, output, session) {
         )
         active(TRUE)
       }
-      
+
       if (questionCount() >= 10) {
         updateButton(
           session = session,
@@ -1290,7 +1289,7 @@ server <- function(input, output, session) {
           disabled = FALSE
         )
       }
-      
+
       ## Mark
       output$mark <- boastUtils::renderIcon(
         icon = ifelse(
@@ -1300,7 +1299,7 @@ server <- function(input, output, session) {
         ),
         width = 36
       )
-      
+
       # Feedback
       output$Feedback <- renderUI(
         expr = {
@@ -1313,25 +1312,25 @@ server <- function(input, output, session) {
       )
     }
   )
-  
+
   renderIcon()
 
   observeEvent(
-    eventExpr = input$restart, 
+    eventExpr = input$restart,
     handlerExpr = {
       updateButton(
-        session = session, 
-        inputId = "submit", 
+        session = session,
+        inputId = "submit",
         disabled = FALSE
       )
       updateButton(
-        session = session, 
-        inputId = "restart", 
+        session = session,
+        inputId = "restart",
         disabled = FALSE
       )
       updateSelectInput(
-        session = session, 
-        inputId = "answer", 
+        session = session,
+        inputId = "answer",
         label = "Select your answer from below",
         choices = c("", "A", "B", "C")
       )
@@ -1340,7 +1339,7 @@ server <- function(input, output, session) {
       value$answerBox <- value$index
       ans <- as.matrix(bank[1:16, 6])
       indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
-      output$mark <- renderUI( 
+      output$mark <- renderUI(
         expr = {
           img(src = NULL, width = 30) #clears correction marks
         }
@@ -1357,14 +1356,14 @@ server <- function(input, output, session) {
   value <- reactiveValues(index = 1, mistake = 0, correct = 0)
   ans <- as.matrix(bank[1:16, 6])
   indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
-  
+
   output$question <- renderUI(
     expr = {
       value$num <- sample(1:16, 1, replace = FALSE)
       h4(bank[value$index, 2])
     }
   )
-  
+
   ### Plot Image Alt Text ----
   plotAltText <- function(i) {
     altText <- if (bank[value$index, i] %in% c("b1pos1.png", "b1pos2.png", "b1pos3.png")) {
@@ -1380,7 +1379,7 @@ server <- function(input, output, session) {
     }
     paste0(altText)
   }
-  
+
   ### question choice ----
   output$options <- renderUI(
     expr = {
@@ -1416,9 +1415,9 @@ server <- function(input, output, session) {
   )
 
   ## Dice Icon for quiz  ----
-  
+
   score <- reactiveVal(0)
-  
+
   output$dice <- renderUI(
     expr = {
       img(
@@ -1428,7 +1427,7 @@ server <- function(input, output, session) {
       )
     }
   )
-  
+
    output$questNum <- renderUI(
     expr = {
       h2("Question ", questionCount())
@@ -1439,17 +1438,17 @@ server <- function(input, output, session) {
       h2("Your cumulative score is", score())
     }
   )
-  
+
   output$feedback <- renderUI(
     expr = {
       div(
-        style = "text-align: center", 
+        style = "text-align: center",
         tags$h4(bank$Feedback[value$num]))
     }
   )
-  
+
   observeEvent(
-    eventExpr = input$restart, 
+    eventExpr = input$restart,
     handlerExpr = {
       newValue <- score() - score()
       score(newValue)
@@ -1459,7 +1458,7 @@ server <- function(input, output, session) {
           img(
             src = "21.png",
             width = "30%",
-            alt = "The dice currently displays a 1." 
+            alt = "The dice currently displays a 1."
           )
         }
       )
