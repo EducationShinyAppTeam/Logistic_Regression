@@ -1,4 +1,4 @@
-# Load Package ----
+# Load Packages ----
 library(boastUtils)
 library(ggplot2)
 library(DT)
@@ -6,14 +6,15 @@ library(dplyr)
 library(shinycssloaders)
 library(Stat2Data)
 library(ResourceSelection)
-library(data.table)
+# library(data.table)
 library(shinyBS)
 library(shinydashboard)
 library(shinyWidgets)
-library(shinyjs)
-library(withr)
+# library(shinyjs)
+# library(withr)
 
 # Load Data ----
+## Coming from the Stat2Data package
 data("MedGPA")
 data("Titanic")
 data("Leukemia")
@@ -21,14 +22,14 @@ data("Leukemia")
 # Fix issue with missing values and non-finite values
 Titanic <- Titanic[complete.cases(Titanic), ]
 
-# Import helper functions
-source("helpers.R")
+# Import helper functions ----
+## Is this needed?
+# source("helpers.R")
 
 # Define UI for App ----
-## Create the app page ----
 ui <- dashboardPage(
   skin = "yellow",
-  ## Create the app header ----
+  ## Header ----
   dashboardHeader(
     title = "Logistic Regression",
     titleWidth = 250,
@@ -44,12 +45,12 @@ ui <- dashboardPage(
       )
     )
   ),
-  ### Create the sidebar/left navigation menu ----
+  ## Sidebar ----
   dashboardSidebar(
     width = 250,
     sidebarMenu(
       id = "pages",
-      menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
+      menuItem("Overview", tabName = "overview", icon = icon("gauge-high")),
       menuItem("Prerequisites", tabName = "prereq", icon = icon("book")),
       menuItem("Explore", tabName = "explore", icon = icon("wpexplorer")),
       menuItem("Game", tabName = "game", icon = icon("gamepad")),
@@ -60,10 +61,9 @@ ui <- dashboardPage(
       boastUtils::sidebarFooter()
     )
   ),
-  ### Create the content ----
   dashboardBody(
     tabItems(
-      #### Set up the Overview Page ----
+      ## Overview Page ----
       tabItem(
         tabName = "overview",
         h1("Logistic Regression"),
@@ -71,12 +71,14 @@ ui <- dashboardPage(
           outcome of the Logistic Regression Model and Empirical Logit Plot."),
         br(),
         h2("Instructions"),
-        tags$ol(tags$li("This app includes Single Logistic Regression with simulated
-                        data and the Empirical Logit Plot with real datasets."),
-        tags$li("Click the New Sample button to generate the plot. Watch the change
-                of the plot when dragging the slider of confidence interval."),
-        tags$li("In the Empirical Logit Plot, select desired predictors from
-                the menu and see how the plot changes accordingly."),
+        tags$ol(
+          tags$li("This app includes Simple Logistic Regression with simulated
+                  data and the Empirical Logit Plot with real datasets."),
+        tags$li("On the Explore page, click the New Sample button to generate
+                the plot. Watch the change of the plot when dragging the slider
+                of confidence interval."),
+        tags$li("In the Empirical Logit Plot, select desired predictors from the
+                menu and see how the plot changes accordingly."),
         tags$li("After working with the Explore section, you can start the game
                 to test your understanding of the concepts."),
         tags$li("Practice the questions in the Game Section. For each question you
@@ -84,28 +86,21 @@ ui <- dashboardPage(
         tags$li("If the cumulative total for your dice roll reaches 20 within
                 10 questions, YOU WIN!")
         ),
-        br(),
         div(
-          style = "text-align: center",
+          style = "text-align: center;",
           bsButton(
             inputId = "goToPrereq",
             label = "Prerequisites!",
             icon = icon("book"),
-            size = "large",
-            class = "circle grow"
+            size = "large"
           )
         ),
-        br(),
-        h2("About the data"),
-        p("The datasets and the procedures for the empirical logit plot are adopted
-          from Stat2: Models for a World of Data by Cannon, Cobb, Hartlaub, Legler,
-          Lock, Moore, Rossman, and Witmer."),
         br(),
         br(),
         h2("Acknowledgements"),
         p("This app was developed and coded by Yiyun Gong and Ruisi Wang.
-          This app was further updated by Wanyi Su, Sean Burke, and Davis Jiwoo Im. Special thanks
-          to Hatfield, Neil J."),
+          This app was further updated by Wanyi Su, Sean Burke, and Davis Jiwoo Im.
+          Special thanks to Neil Hatfield."),
         br(),
         br(),
         br(),
@@ -116,77 +111,89 @@ ui <- dashboardPage(
         br(),
         div(class = "updated", "Last Update: 07/12/2024 by DJI.")
       ),
-      #### Set up the Prerequisites Page ----
+      ## Prerequisites Page ----
       tabItem(
         tabName = "prereq",
         withMathJax(),
         h2("Logistic Regression Analysis"),
         br(),
         tags$ul(
-          tags$li("The logistic regression model explains the relationship
-                  between one (or more) explanatory
-                  variable and the binary outcome."),
-          br(),
-          tags$li("In the logistic regression the constant \\(\\beta_0\\) moves
-                  the curve left and right and the slope \\(\\beta_1\\) defines
-                  the steepness of the curve."),
-          div("\\[{ln({p\\over1-p})} = {\\beta_0+\\beta_1x}\\]"),
-          tags$li("Empirical logit plot is used to check the linearity for datasets."),
-          div("\\[{logit ( \\hat p )=log({ \\hat p\\over1-\\hat p})}\\]"),
-          tags$li("Deviance Residual and Pearson Residual check the model fit.
-                  Best results are no patterns or no extremely large residuals "),
-          br(),
-          tags$li("Hosmer and Lemeshow test check the goodness of fit in the model
-                  where data is divided into g groups, in which g is recomended to equal 10.
-                  Because of the arbitrary nature of picking g, the test has very low power with small sample sizes.
-                  With this app, the following rules are put in place to determine g:",
-                  tags$ol(
-                    br(),
-                    tags$li("The minimum sample size is n = 10."),
-                    tags$li("g = 10 when n > 30."),
-                    tags$li("g = floor of n/3 when 10≤n≤30.")
-                  ),
-                  br(),
-                  "The p-value can determine the significance of the result. The number of subgroups,
-                      g, usually uses the formula g > P + 1. P is number of
-                      covariates. Degree of freedom equals g-2."),
-          br(),
-          tags$li("Hosmer-Lemeshow Test Statstics" ),
-          div("\\[{\\sum_{i=1}^g}{\\sum_{j=1}^2}{{(obs_{ij} - exp_{ij})^2}}\\]"),
-        ),
-        div(
-          style = "text-align: center",
-            bsButton(
-              inputId = "goToExplore",
-              label = "Explore",
-              icon = icon("bolt"),
-              size = "large",
-              class = "circle grow"
-          )
+          tags$li(
+            "The logistic regression model explains the relationship between one
+            or more explanatory variables and a binary outcome."
+          ),
+          tags$li(
+            "In the logistic regression the constant \\(\\beta_0\\) moves the
+            curve left and right and the slope \\(\\beta_1\\) defines the
+            steepness of the curve."
+          ),
+          tags$li("Logistic regression models the relationship between the log-odds
+                  of an event with the linear model:
+                  \\[\\log\\left(\\frac{p}{1-p}\\right) = \\beta_0 +\\beta_1*x\\]"
+          ),
+          tags$li(
+            "The log of the odds of the binary outcome is called the logit. An
+            empirical logit is based on data using the following formula
+            \\[\\text{logit}\\left(\\widehat{p}\\right)=
+            \\log\\left(\\frac{\\widehat{p}}{1-\\widehat{p}}\\right)\\]"
+          ),
+          tags$li(
+            "The empirical logit plot is used to check the linearity assumption
+            for datasets."
+          ),
+          tags$li(
+            "Deviance Residuals and Pearson Residuals are used to check the model
+            fit. Best results are no patterns or no extremely large residuals."
+          ),
+          tags$li(
+            "The Hosmer and Lemeshow test is used to check the goodness of fit in
+            the model where data is divided into g groups; g is often recommended
+            to equal 10. Because of the arbitrary nature of picking g, the test
+            has very low power with small sample sizes. With this app, the
+            following rules are put in place to determine g:",
+            tags$ol(
+              tags$li("The minimum sample size is 10 (\\(n=10\\))."),
+              tags$li("Set \\(g = 10\\) when \\(n \\gt 30\\)."),
+              tags$li("Set \\(g = \\left\\lfloor n/3 \\right\\rfloor\\) when
+                      \\(10 \\leq n \\leq 30\\).")
+            ),
+            "The p-value can be approximated using a Chi-squared distribution
+            with g-2 degrees of freedom, when g is greater than the number of
+            covariates plus one."
+          ),
+          tags$li(
+            "Hosmer-Lemeshow Test Statstic is defined as
+            \\[\\sum_{i=1}^g\\sum_{j=1}^2
+            \\frac{\\left(obs_{ij} - exp_{\\,ij}\\right)^2}{exp_{\\,ij}}\\]"
+          ),
         )
       ),
-      #### Set up an Explore Page ----
+      ## Explore Page ----
       tabItem(
         tabName = "explore",
+        withMathJax(),
+        h2("Explore Logistic Regression"),
+        p("Explore Logistic Regression by looking first exploring how model
+          parameters impact the various plots for Simple Logistic Regression.
+          Then explore the empirical logit plot using some real-world data."),
         tabsetPanel(
           type = "tabs",
           tabPanel(
-            ###### Single Regression
-            "Single Logistic Regression",
-            h2("Single Logistic Regression"),
-            tags$ul(
-              tags$li("Adjust the sliders to change the sample size and
-                            corresponding beta coefficients."),
-              tags$li("Click the 'New Sample' button to generate a new plot.")
-            ),
+            ### Simple Logistic Tab ----
+            title = "Simple Logistic Regression",
             br(),
+            p("Adjust the sliders to change the sample size and corresponding
+              beta coefficients. When ready, click the 'New Sample' button to
+              simulate new data."),
+            p("You can add a confidence band to the logistic regression model
+              plot as well as change what type of residual is shown."),
             fluidRow(
               column(
-                width = 5,
+                width = 4,
                 wellPanel(
                   sliderInput(
                     inputId = "sampleSize",
-                    label = "Set sample size:",
+                    label = "Set sample size",
                     min = 10,
                     max = 300,
                     value = 150,
@@ -194,22 +201,30 @@ ui <- dashboardPage(
                   ),
                   sliderInput(
                     inputId = "b0",
-                    label = "β0 (intercept):",
+                    label = "\\(\\beta_0\\) (intercept)",
                     min = -10,
                     max = 10,
                     value = 0
                   ),
                   sliderInput(
                     inputId = "b1",
-                    label = "β1 (coefficient):",
+                    label = "\\(\\beta_1\\) (coefficient)",
                     min = -10,
                     max = 10,
                     value = 3
                   ),
+                  bsButton(
+                    inputId = "newSample",
+                    label = "New sample",
+                    icon = icon("retweet"),
+                    size = "large"
+                  ),
+                  br(),
+                  br(),
                   sliderInput(
                     inputId = "ci",
-                    label = "Confidence interval level:",
-                    min = 0,
+                    label = "Confidence level",
+                    min = 0.6,
                     max = 0.99,
                     value = 0.95,
                     step = 0.01
@@ -221,119 +236,93 @@ ui <- dashboardPage(
                   ),
                   selectInput(
                     inputId = "residualType",
-                    label = "Residual Type",
-                    choices = c("deviance", "pearson"),
-                    selected = "deviance"
-                  ),
-                  br(),
-                  actionButton(
-                    inputId = "newSample",
-                    label = "New Sample",
-                    icon = icon("paper-plane"),
-                    class = "btn btn-lg",
-                    style = "color: #fff",
-                    class = "circle grow"
-                  ),
-                  br()
+                    label = "Residual type",
+                    choices = c("Deviance", "Pearson"),
+                    selected = "Deviance"
+                  )
                 )
               ),
               column(
-                width = 7,
-                plotOutput("logPlot", width = "98%") %>%
-                  withSpinner(color = boastUtils::psuPalette[4]),
-                br(),
-                plotOutput("residualPlot", width = "100%", height = "330px") %>%
-                  withSpinner(color =  boastUtils::psuPalette[4]),
+                width = 8,
+                plotOutput(outputId = "logPlot"),
+                plotOutput(
+                  outputId = "residualPlot",
+                  width = "100%",
+                  height = "330px"
+                )
               )
             ),
-            br(),
-            h3(strong(id = "title", "Hosmer and Lemeshow Goodness of Fit Test"), align = 'center'),
+            h3(
+              style = "text-align: center;",
+              "Hosmer and Lemeshow Goodness of Fit Test"
+            ),
             DT::DTOutput(outputId = "obsexpDF"),
             DT::DTOutput(outputId = "lemeshowDF"),
             br(),
             conditionalPanel(
               condition = "input.sampleSize < 100",
-              textOutput("caution"),
-              tags$head(
-                tags$style(
-                  "#caution{color: #E98300;
-                                 font-size: 20px;
-                                 font-style: italic;
-                                 }"
-                )
-              )
-            ),
-            # set continue button
-            br(),
-            div(
-              style = "text-align: center",
-              bsButton(
-                inputId = "goToGame",
-                label = "Play the game!",
-                icon = icon("bolt"),
-                size = "large",
-                class = "circle grow"
-              )
+              p(tags$strong("Caution:"), "The Hosmer-Lemeshow test has very low
+                power in this situation")
             )
           ),
-          ##### Empirical Logit Plot ----
+          ### Empirical Logit Plot ----
           tabPanel(
-            "Empirical Logit Plot",
-            h2("Empirical Logit Plot"),
-            h3("Process of creating an empirical logit plot for quantitative predictors"),
+            title = "Empirical Logit Plot",
+            p("The process for creating an empirical logit plot for quantitative
+              predictors can be thought of in three steps."),
             tags$ol(
-              tags$li("Divide the range of the predictor into intervals
-                            with roughly equal numbers of cases."),
-              tags$li("Compute the mean value of the predictor and the
-                            empirical logit for each interval."),
-              tags$li("Plot logit versus the mean value of the predictor,
-                            with one point for each interval.")),
-            br(),
+              tags$li("Divide the range of the predictor into intervals with
+                      roughly equal numbers of cases."),
+              tags$li("Compute the mean value of the predictor and the empirical
+                      logit for each interval."),
+              tags$li("Plot logit versus the mean value of the predictor, with
+                      one point for each interval.")
+            ),
             fluidRow(
               column(
-                width = 5,
+                width = 4,
                 wellPanel(
-                  #### select data sets
                   selectInput(
-                    inputId = "dataTable", label = "Select Dataset:",
+                    inputId = "dataTable",
+                    label = "Select data collection",
                     choices = c("MedGPA", "Titanic", "Leukemia"),
                     selected = "MedGPA"
                   ),
                   selectInput(
                     inputId = "yVar",
-                    label = "Select Response Y",
+                    label = "Select response, Y",
                     choices = c("default1")
                   ),
                   selectInput(
                     inputId = "xVar",
-                    label = "Select Quantitave Predictor",
+                    label = "Select quantitave predictor, X",
                     choices = c("default1", "default2", "default3")
                   ),
-                  ### number of groups
-                  sliderInput("ngroups", "Number of Groups (Intervals):",
-                              min = 2, max = 8,
-                              value = 4, step = 1
-                  ),
-                  br()
+                  sliderInput(
+                    inputId = "ngroups",
+                    label = "Number of group/intervals",
+                    min = 2,
+                    max = 8,
+                    value = 4,
+                    step = 1
+                  )
                 )
               ),
               column(
-                width = 7,
-                plotOutput(outputId = "empiricalLogitPlot", width = "100%") %>%
-                  withSpinner(color =  boastUtils::psuPalette[4])
+                width = 8,
+                plotOutput(outputId = "empiricalLogitPlot")
               )
             )
           )
         )
       ),
-      #### Set up a Game page ----
+      ## Game page ----
       tabItem(
         tabName = "game",
         h2("Game Section"),
         p("Answer the questions below and reach a score of at least 20 within 10
-          questions to win!"),
-        p("(The score is determined by the dice.)"),
-        br(),
+          questions to win! Your score for each correct answer is determined by
+          the roll of a die."),
         fluidRow(
           column(
             width = 6,
@@ -342,76 +331,42 @@ ui <- dashboardPage(
               br(),
               uiOutput("question"),
               uiOutput("options"),
-              br(),
               selectInput(
                 inputId = "answer",
                 label = "Select your answer from below",
-                choices = c("", "A", "B", "C")
+                choices = c("", "A", "B", "C"),
+                width = "50%"
               ),
               uiOutput("mark"),
-              br(),
               uiOutput("Feedback"),
-              br()
-            ),
-          ),
-          column(
-            width = 6,
-            tags$head(tags$style(HTML(mycss))),
-            fluidRow(
-              column(
-                width = 12,
-                align = "center",
-                uiOutput("gameScore")
-              ),
-              column(
-                width = 12,
-                align = "center",
-                div(
-                  uiOutput("dice", width = "100%")
-                )
-              )
-            ),
-            br()
-          )
-        ),
-        fluidRow(
-          column(
-            width = 6,
-            align = "center",
-            div(
-              style = "display: inline-block",
-              actionButton(
+              bsButton(
                 inputId = "submit",
-                label = "Submit"
-              )
-            ),
-            div(
-              style = "display: inline-block;vertical-align:top; width: 30px;",
-              HTML("<br>")
-            ),
-            div(
-              style = "display: inline-block",
+                label = "Submit",
+                size = "large"
+              ),
               bsButton(
                 inputId = "nextQuestion",
                 label = "Next",
-                disabled = TRUE
-              )
-            ),
-            div(
-              style = "display: inline-block;vertical-align:top; width: 30px;",
-              HTML("<br>")
-            ),
-            div(
-              style = "display: inline-block",
+                disabled = TRUE,
+                size = "large"
+              ),
               bsButton(
                 inputId = "restart",
-                label = "Restart"
+                label = "Restart",
+                size = "large",
+                icon = icon("triangle-exclamation"),
+                style = "danger"
               )
             )
+          ),
+          column(
+            width = 6,
+            uiOutput(outputId = "gameScore"),
+            uiOutput(outputId = "dice", align = "center")
           )
         )
       ),
-      #### Set up a References page ----
+      ## References page ----
       tabItem(
         tabName = "references",
         withMathJax(),
@@ -427,6 +382,12 @@ ui <- dashboardPage(
           "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
             (v0.61). [R package]. Available from
             https://CRAN.R-project.org/package=shinyBS"
+        ),
+        p(
+          class = "hangingindent",
+          "Cannon, A., Cobb, G. W., Hartlaub, B. A., Legler, J. M., Lock, R. H.,
+          Moore, T. L., Rossman, A. J., Witmer, J. A. (2019). STAT2: Modeling with
+          Regression and ANOVA. W.H. Freeman/Macmillan Learning."
         ),
         p(
           class = "hangingindent",
@@ -550,34 +511,12 @@ server <- function(input, output, session) {
   )
 
   observeEvent(
-    eventExpr = input$goToExplore,
-    handlerExpr = {
-      updateTabItems(
-        session = session,
-        inputId = "pages",
-        selected = "explore"
-      )
-    }
-  )
-
-  observeEvent(
     eventExpr = input$goToPrereq,
     handlerExpr = {
       updateTabItems(
         session = session,
         inputId = "pages",
         selected = "prereq"
-      )
-    }
-  )
-
-  observeEvent(
-    eventExpr = input$goToGame,
-    handlerExpr = {
-      updateTabItems(
-        session = session,
-        inputId = "pages",
-        selected = "game"
       )
     }
   )
@@ -612,21 +551,21 @@ server <- function(input, output, session) {
         updateSelectInput(
           session = session,
           inputId = "yVar",
-          label = "Select Response Y",
+          label = "Select response, Y",
           choices = c("Acceptance")
         )
       } else if (input$dataTable == "Titanic") {
         updateSelectInput(
           session = session,
           inputId = "yVar",
-          label = "Select Response Y",
+          label = "Select response, Y",
           choices = c("Survived")
         )
       } else if (input$dataTable == "Leukemia") {
         updateSelectInput(
           session = session,
           inputId = "yVar",
-          label = "Select Response Y",
+          label = "Select response, Y",
           choices = c("Status")
         )
       }
@@ -641,21 +580,21 @@ server <- function(input, output, session) {
         updateSelectInput(
           session = session,
           inputId = "xVar",
-          label = "Select Quantitave Predictor X",
+          label = "Select quantitative predictor, X",
           choices = c("GPA", "MCAT", "BCPM")
         )
       } else if (input$dataTable == "Titanic") {
         updateSelectInput(
           session = session,
           inputId = "xVar",
-          label = "Select Quantitave Predictor X",
+          label = "Select quantitative predictor, X",
           choices = c("Age")
         )
       } else if (input$dataTable == "Leukemia") {
         updateSelectInput(
           session = session,
           inputId = "xVar",
-          label = "Select Quantitave Predictor X",
+          label = "Select quantitative predictor, X",
           choices = c("Blasts", "Age", "Infil")
         )
       }
@@ -802,7 +741,7 @@ server <- function(input, output, session) {
         family = "binomial",
         data = df
       )
-      if (input$residualType == "pearson") {
+      if (input$residualType == "Pearson") {
         p <- plot(
           residuals(logit, type = "pearson"),
           type = "b",
@@ -832,7 +771,7 @@ server <- function(input, output, session) {
     alt = reactive(
       paste0(
         "This ",
-        if (input$residualType == "pearson") {
+        if (input$residualType == "Pearson") {
           "pearson"
         } else {
           "deviance"
@@ -853,12 +792,6 @@ server <- function(input, output, session) {
     }
       return(g)
   }
-
-  output$caution <- renderText(
-    expr = {
-      paste0("Caution: The Hosmer-Lemeshow test has very low power in this situation")
-    }
-  )
 
   ## Goodness of fit ----
   hlResult <- function() {
@@ -916,7 +849,7 @@ server <- function(input, output, session) {
               round(hl$observed, digits = 2)
             )
           )
-          hob <- setDT(hob, keep.rownames = TRUE)[]
+          # hob <- setDT(hob, keep.rownames = TRUE)[]
           colnames(hob) <- c(
             "interval", "number of 0s expected", "number of 1s expected",
             "number of 0s in group", "number of 1s in group"
