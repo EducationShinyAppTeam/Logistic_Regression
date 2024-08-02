@@ -849,6 +849,248 @@ server <- function(input, output, session) {
   )
 
   ## Game Code ----
+  ### Key Variables ----
+  score <- reactiveVal(0)
+  questionCount <- reactiveVal(1)
+  value <- reactiveValues(index = 1, mistake = 0, correct = 0)
+  ans <- as.matrix(bank[1:16, 6])
+  indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
+
+  ### Question Display ----
+  #### Additional Graphs
+  #### Select Answer
+
+  #### Question Number ----
+  output$questNum <- renderUI(
+    expr = {
+      h2("Question ", questionCount())
+    }
+  )
+
+  #### Prompt ----
+  output$question <- renderUI(
+    expr = {
+      value$num <- sample(1:16, 1, replace = FALSE)
+      h4(bank[value$index, 2])
+    }
+  )
+
+  #### Answer options ----
+  output$options <- renderUI(
+    expr = {
+      if (value$index == 11) {
+        str1 <- paste("A.", bank[value$index, 3])
+        str2 <- paste("B.", bank[value$index, 4])
+        HTML(paste(str1, str2, sep = "<br/>"))
+      } else if (value$index %in% c(12:16)) {
+        picA <- img(
+            src = bank[value$index, 3],
+            width = "50%",
+            alt = plotAltText(3)
+          )
+        picB <- img(
+            src = bank[value$index, 4],
+            width = "50%",
+            alt = plotAltText(4)
+          )
+        str1 <- paste("A.", picA)
+        str2 <- paste("B.", picB)
+        HTML(paste(str1, str2, sep = "<br/>"))
+      } else if (value$index %in% c(1:10)) {
+        str1 <- paste("A.", bank[value$index, 3])
+        str2 <- paste("B.", bank[value$index, 4])
+        str3 <- paste("C.", bank[value$index, 5])
+        HTML(paste(str1, str2, str3, sep = "<br/>"))
+      } else {
+        h4("reach the end")
+      }
+    }
+  )
+
+  ### Submit Button ----
+  observeEvent(
+    eventExpr = input$submit,
+    handlerExpr = {
+      #### Update buttons
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = TRUE
+      )
+
+      updateButton(
+        session = session,
+        inputId = "nextQuestion",
+        disabled = FALSE
+      )
+
+      #### Answer Check
+      answer <- isolate(input$answer)
+      if (any(answer == ans[value$index, 1])) {
+        ##### Roll Die
+        output$dice <- renderUI(
+          expr = {
+            img(
+              src = "newdice1.gif",
+              width = "30%",
+              alt = "The dice is rolling"
+            )
+          }
+        )
+        active(TRUE)
+      }
+      ##### Feedback--Text and Mark
+      output$mark <- boastUtils::renderIcon(
+        icon = ifelse(
+          any(answer == ans[value$index, 1]),
+          yes = "correct",
+          no = "incorrect"
+        ),
+        width = 36
+      )
+
+      output$Feedback <- renderUI(
+        expr = {
+          if (any(answer == ans[value$index, 1])) {
+            HTML(paste("Congrats!", bank[value$index, 7], collapse = "\n"))
+          } else {
+            HTML(paste("Sorry, that is incorrect!", bank[value$index, 7], collapse = "\n"))
+          }
+        }
+      )
+
+      # OLD?
+      output$feedback <- renderUI(
+        expr = {
+          div(
+            style = "text-align: center",
+            tags$h4(bank$Feedback[value$num]))
+        }
+      )
+
+      ##### Update Score
+    }
+  )
+
+  ### Next Button ----
+  observeEvent(
+    eventExpr = input$nextQuestion,
+    handlerExpr = {
+      #### Check for available questions
+      if (questionCount() == 10) {
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = TRUE
+        )
+        sendSweetAlert(
+          session = session,
+          title = "Try Again",
+          text = "You've run out of questions. Click the restart button to try again.",
+          type = "warning"
+        )
+      } else {
+        #### Update question display
+        indexList$list <- indexList$list[!indexList$list %in% value$index]
+        value$index <- indexList$list[1]
+        value$answerBox <- value$index
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = FALSE
+        )
+        if (value$index %in% c(11:16)) {
+          updateSelectInput(
+            session = session,
+            inputId = "answer",
+            label = "Select your answer from below",
+            choices = c("", "A", "B")
+          )
+        } else {
+          updateSelectInput(
+            session = session,
+            inputId = "answer",
+            label = "Select your answer from below",
+            choices = c("", "A", "B", "C")
+          )
+        }
+
+        questionCount(questionCount() + 1)
+      }
+
+      #### Clear feedback
+      output$mark <- renderIcon()
+      output$Feedback <- renderUI({NULL})
+
+      #### Update next button
+      updateButton(
+        session = session,
+        inputId = "nextQuestion",
+        disabled = TRUE
+      )
+    }
+  )
+
+  ### Restart Button ----
+  observeEvent(
+    eventExpr = input$restart,
+    handlerExpr = {
+      #### Update Score
+      score(0)
+
+      #### Other resets ????
+      questionCount(1)
+      output$dice <- renderUI(
+        expr = {
+          img(
+            src = "21.png",
+            width = "30%",
+            alt = "The dice currently displays a 1."
+          )
+        }
+      )
+
+      #### Clear feedback
+      output$mark <- renderIcon()
+      output$Feedback <- renderUI({NULL})
+
+      #### Update buttons
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = FALSE
+      )
+      updateButton(
+        session = session,
+        inputId = "nextQuestion",
+        disabled = TRUE
+      )
+
+      #### Update question display
+      updateSelectInput(
+        session = session,
+        inputId = "answer",
+        label = "Select your answer from below",
+        choices = c("", "A", "B", "C")
+      )
+      indexList$list <- c(indexList$list, sample(2:14, 13, replace = FALSE))
+      value$index <- 1
+      value$answerBox <- value$index
+      ans <- as.matrix(bank[1:16, 6])
+      indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
+    }
+  )
+
+  ### Score Message ----
+  output$gameScore <- renderUI(
+    expr = {
+      p(class = "largerFont", "Your cumulative score:", score())
+    }
+  )
+
+  ### Game Check ----
+
+  # OLD ----
   ### Timer for Dice and Success ----
   timer <- reactiveVal(1)
   active <- reactiveVal(FALSE)
@@ -982,8 +1224,6 @@ server <- function(input, output, session) {
   # Pulls corresponding answer values from question bank and returns its text
   # bank for question
 
-
-
   getResponseText <- function(index, answer) {
     if (answer == "A") {
       key <- 3
@@ -994,196 +1234,6 @@ server <- function(input, output, session) {
     }
     return(bank[index, key])
   }
-
-  ## Question Counter ----
-  questionCount <- reactiveVal(1)
-
-  ## Buttons Handle ----
-  observeEvent(
-    eventExpr = input$nextQuestion,
-    handlerExpr = {
-      if (questionCount() == 10) {
-        updateButton(
-          session = session,
-          inputId = "nextQuestion",
-          disabled = TRUE
-        )
-        updateButton(
-          session = session,
-          inputId = "submit",
-          disabled = TRUE
-        )
-        sendSweetAlert(
-          session = session,
-          title = "Try Again",
-          text = "You've run out of questions. Click the restart button to try again.",
-          type = "warning"
-        )
-      } else {
-        indexList$list <- indexList$list[!indexList$list %in% value$index]
-        value$index <- indexList$list[1]
-        value$answerBox <- value$index
-
-        updateButton(
-          session = session,
-          inputId = "nextQuestion",
-          disabled = TRUE
-        )
-        updateButton(
-          session = session,
-          inputId = "submit",
-          disabled = FALSE
-        )
-        if (value$index %in% c(11:16)) {
-          updateSelectInput(
-            session = session,
-            inputId = "answer",
-            label = "Select your answer from below",
-            choices = c("", "A", "B")
-          )
-        } else {
-          updateSelectInput(
-            session = session,
-            inputId = "answer",
-            label = "Select your answer from below",
-            choices = c("", "A", "B", "C")
-          )
-        }
-        output$mark <- renderUI(
-          expr = {
-            img(src = NULL, width = 30) #clears correction mark
-          }
-        )
-        output$Feedback <- renderUI(
-          expr = {
-            img(src = NULL, width = 30) #clears feedback
-          }
-        )
-        questionCount(questionCount() + 1)
-      }
-    }
-  )
-
-
-  observeEvent(
-    eventExpr = input$submit,
-    handlerExpr = {
-      updateButton(
-        session = session,
-        inputId = "submit",
-        disabled = TRUE
-      )
-      answer <- isolate(input$answer)
-      if (any(answer == ans[value$index, 1])) {
-        output$dice <- renderUI(
-          expr = {
-            img(
-              src = "newdice1.gif",
-              width = "30%",
-              alt = "The dice is rolling"
-            )
-          }
-        )
-        active(TRUE)
-      }
-
-      if (questionCount() >= 10) {
-        updateButton(
-          session = session,
-          inputId = "nextQuestion",
-          disabled = FALSE
-        )
-        updateButton(
-          session = session,
-          inputId = "submit",
-          disabled = TRUE
-        )
-      } else {
-        updateButton(
-          session = session,
-          inputId = "submit",
-          disabled = TRUE
-        )
-        updateButton(
-          session = session,
-          inputId = "nextQuestion",
-          disabled = FALSE
-        )
-      }
-
-      ## Mark
-      output$mark <- boastUtils::renderIcon(
-        icon = ifelse(
-          any(answer == ans[value$index, 1]),
-          yes = "correct",
-          no = "incorrect"
-        ),
-        width = 36
-      )
-
-      # Feedback
-      output$Feedback <- renderUI(
-        expr = {
-          if (any(answer == ans[value$index, 1])) {
-            HTML(paste("Congrats!", bank[value$index, 7], collapse = "\n"))
-          } else {
-            HTML(paste("Sorry, that is incorrect!", bank[value$index, 7], collapse = "\n"))
-          }
-        }
-      )
-    }
-  )
-
-  renderIcon()
-
-  observeEvent(
-    eventExpr = input$restart,
-    handlerExpr = {
-      updateButton(
-        session = session,
-        inputId = "submit",
-        disabled = FALSE
-      )
-      updateButton(
-        session = session,
-        inputId = "restart",
-        disabled = FALSE
-      )
-      updateSelectInput(
-        session = session,
-        inputId = "answer",
-        label = "Select your answer from below",
-        choices = c("", "A", "B", "C")
-      )
-      indexList$list <- c(indexList$list, sample(2:14, 13, replace = FALSE))
-      value$index <- 1
-      value$answerBox <- value$index
-      ans <- as.matrix(bank[1:16, 6])
-      indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
-      output$mark <- renderUI(
-        expr = {
-          img(src = NULL, width = 30) #clears correction marks
-        }
-      )
-      output$Feedback <- renderUI(
-        expr = {
-          img(src = NULL, width = 30) #clears Feedback
-        }
-      )
-    }
-  )
-
-  ## Question Part ----
-  value <- reactiveValues(index = 1, mistake = 0, correct = 0)
-  ans <- as.matrix(bank[1:16, 6])
-  indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
-
-  output$question <- renderUI(
-    expr = {
-      value$num <- sample(1:16, 1, replace = FALSE)
-      h4(bank[value$index, 2])
-    }
-  )
 
   ### Plot Image Alt Text ----
   plotAltText <- function(i) {
@@ -1201,44 +1251,9 @@ server <- function(input, output, session) {
     paste0(altText)
   }
 
-  ### question choice ----
-  output$options <- renderUI(
-    expr = {
-      if (value$index == 11) {
-        str1 <- paste("A.", bank[value$index, 3])
-        str2 <- paste("B.", bank[value$index, 4])
-        HTML(paste(str1, str2, sep = "<br/>"))
-      } else if (value$index %in% c(12:16)) {
-        picA <-
-          img(
-            src = bank[value$index, 3],
-            width = "50%",
-            alt = plotAltText(3)
-          )
-        picB <-
-          img(
-            src = bank[value$index, 4],
-            width = "50%",
-            alt = plotAltText(4)
-          )
-        str1 <- paste("A.", picA)
-        str2 <- paste("B.", picB)
-        HTML(paste(str1, str2, sep = "<br/>"))
-      } else if (value$index %in% c(1:10)) {
-        str1 <- paste("A.", bank[value$index, 3])
-        str2 <- paste("B.", bank[value$index, 4])
-        str3 <- paste("C.", bank[value$index, 5])
-        HTML(paste(str1, str2, str3, sep = "<br/>"))
-      } else {
-        h4("reach the end")
-      }
-    }
-  )
+
 
   ## Dice Icon for quiz  ----
-
-  score <- reactiveVal(0)
-
   output$dice <- renderUI(
     expr = {
       img(
@@ -1249,42 +1264,12 @@ server <- function(input, output, session) {
     }
   )
 
-   output$questNum <- renderUI(
-    expr = {
-      h2("Question ", questionCount())
-    }
-  )
-  output$gameScore <- renderUI(
-    expr = {
-      h2("Your cumulative score is", score())
-    }
-  )
 
-  output$feedback <- renderUI(
-    expr = {
-      div(
-        style = "text-align: center",
-        tags$h4(bank$Feedback[value$num]))
-    }
-  )
 
-  observeEvent(
-    eventExpr = input$restart,
-    handlerExpr = {
-      newValue <- score() - score()
-      score(newValue)
-      questionCount(1)
-      output$dice <- renderUI(
-        expr = {
-          img(
-            src = "21.png",
-            width = "30%",
-            alt = "The dice currently displays a 1."
-          )
-        }
-      )
-    }
-  )
+
+
+
+
 }
 
 # Boast App Call ----
