@@ -3,7 +3,7 @@ library(boastUtils)
 library(ggplot2)
 library(DT)
 library(dplyr)
-library(shinycssloaders)
+# library(shinycssloaders)
 library(Stat2Data)
 library(ResourceSelection)
 # library(data.table)
@@ -22,7 +22,28 @@ data("Leukemia")
 # Fix issue with missing values and non-finite values
 Titanic <- Titanic[complete.cases(Titanic), ]
 
-# Import helper functions ----
+bank <- read.csv("questionbank.csv")
+
+# Define Helper functions ----
+gRule <- function(sampleSize) {
+  if (sampleSize > 30) {
+    g <- 10
+  } else {
+    g <- floor(sampleSize/3)
+  }
+  return(g)
+}
+
+hlResult <- function(data, sampleSize) {
+  mod <- glm(
+    formula = y ~ x,
+    data = data,
+    family = "binomial"
+  )
+  # g formula for function
+  hl <- hoslem.test(mod$y, fitted(mod), gRule(sampleSize))
+  return(hl)
+}
 ## Is this needed?
 # source("helpers.R")
 
@@ -74,16 +95,16 @@ ui <- dashboardPage(
         tags$ol(
           tags$li("This app includes Simple Logistic Regression with simulated
                   data and the Empirical Logit Plot with real datasets."),
-        tags$li("On the Explore page, click the New Sample button to generate
+          tags$li("On the Explore page, click the New Sample button to generate
                 the plot. Watch the change of the plot when dragging the slider
                 of confidence interval."),
-        tags$li("In the Empirical Logit Plot, select desired predictors from the
+          tags$li("In the Empirical Logit Plot, select desired predictors from the
                 menu and see how the plot changes accordingly."),
-        tags$li("After working with the Explore section, you can start the game
+          tags$li("After working with the Explore section, you can start the game
                 to test your understanding of the concepts."),
-        tags$li("Practice the questions in the Game Section. For each question you
+          tags$li("Practice the questions in the Game Section. For each question you
                 get right, you will get a chance to roll the dice."),
-        tags$li("If the cumulative total for your dice roll reaches 20 within
+          tags$li("If the cumulative total for your dice roll reaches 20 within
                 10 questions, YOU WIN!")
         ),
         div(
@@ -127,9 +148,10 @@ ui <- dashboardPage(
             curve left and right and the slope \\(\\beta_1\\) defines the
             steepness of the curve."
           ),
-          tags$li("Logistic regression models the relationship between the log-odds
-                  of an event with the linear model:
-                  \\[\\log\\left(\\frac{p}{1-p}\\right) = \\beta_0 +\\beta_1*x\\]"
+          tags$li(
+            "Logistic regression models the relationship between the log-odds
+             of an event with the linear model:
+             \\[\\log\\left(\\frac{p}{1-p}\\right) = \\beta_0 +\\beta_1*x\\]"
           ),
           tags$li(
             "The log of the odds of the binary outcome is called the logit. An
@@ -252,13 +274,9 @@ ui <- dashboardPage(
                 )
               )
             ),
-            h3(
-              style = "text-align: center;",
-              "Hosmer and Lemeshow Goodness of Fit Test"
-            ),
-            DT::DTOutput(outputId = "obsexpDF"),
-            DT::DTOutput(outputId = "lemeshowDF"),
-            br(),
+            h3("Hosmer and Lemeshow Goodness of Fit Test"),
+            DT::DTOutput(outputId = "obsexpDF", width = "75%"),
+            DT::DTOutput(outputId = "lemeshowDF", width = "75%"),
             conditionalPanel(
               condition = "input.sampleSize < 100",
               p(tags$strong("Caution:"), "The Hosmer-Lemeshow test has very low
@@ -268,6 +286,7 @@ ui <- dashboardPage(
           ### Empirical Logit Plot ----
           tabPanel(
             title = "Empirical Logit Plot",
+            br(),
             p("The process for creating an empirical logit plot for quantitative
               predictors can be thought of in three steps."),
             tags$ol(
@@ -284,7 +303,7 @@ ui <- dashboardPage(
                 wellPanel(
                   selectInput(
                     inputId = "dataTable",
-                    label = "Select data collection",
+                    label = "Select a data collection",
                     choices = c("MedGPA", "Titanic", "Leukemia"),
                     selected = "MedGPA"
                   ),
@@ -300,7 +319,7 @@ ui <- dashboardPage(
                   ),
                   sliderInput(
                     inputId = "ngroups",
-                    label = "Number of group/intervals",
+                    label = "Number of groups/intervals",
                     min = 2,
                     max = 8,
                     value = 4,
@@ -333,9 +352,9 @@ ui <- dashboardPage(
               uiOutput("options"),
               selectInput(
                 inputId = "answer",
-                label = "Select your answer from below",
-                choices = c("", "A", "B", "C"),
-                width = "50%"
+                label = "Your answer",
+                choices = c("Select an option", "A", "B", "C") #,
+                # width = "50%"
               ),
               uiOutput("mark"),
               uiOutput("Feedback"),
@@ -510,6 +529,7 @@ server <- function(input, output, session) {
     }
   )
 
+  ## Prereq's button ----
   observeEvent(
     eventExpr = input$goToPrereq,
     handlerExpr = {
@@ -521,187 +541,59 @@ server <- function(input, output, session) {
     }
   )
 
-  observeEvent(
-    eventExpr = input$go2,
-    handlerExpr = {
-      updateTabItems(
-        session = session,
-        inputId = "pages",
-        selected = "references"
-      )
-    }
-  )
+  ## Explore Simple Logistic Regression ----
+  # observeEvent(
+  #   eventExpr = input$newSample,
+  #   handlerExpr = {
+  #     commonDf(df(input$b0, input$b1, input$sampleSize))
+  #   }
+  # )
 
-  observeEvent(
-    eventExpr = input$goMul,
-    handlerExpr = {
-      updateTabItems(
-        session = session,
-        inputId = "pages",
-        selected = "Multiple"
-      )
-    }
-  )
-
-  ## Update Response Options for empirical logit plot ----
-  observeEvent(
-    eventExpr = input$dataTable,
-    handlerExpr = {
-      if (input$dataTable == 'MedGPA') {
-        updateSelectInput(
-          session = session,
-          inputId = "yVar",
-          label = "Select response, Y",
-          choices = c("Acceptance")
-        )
-      } else if (input$dataTable == "Titanic") {
-        updateSelectInput(
-          session = session,
-          inputId = "yVar",
-          label = "Select response, Y",
-          choices = c("Survived")
-        )
-      } else if (input$dataTable == "Leukemia") {
-        updateSelectInput(
-          session = session,
-          inputId = "yVar",
-          label = "Select response, Y",
-          choices = c("Status")
-        )
-      }
-    }
-  )
-
-  ## Update Predictor Options for empirical logit plot ----
-  observeEvent(
-    eventExpr = input$dataTable,
-    handlerExpr = {
-      if (input$dataTable == 'MedGPA') {
-        updateSelectInput(
-          session = session,
-          inputId = "xVar",
-          label = "Select quantitative predictor, X",
-          choices = c("GPA", "MCAT", "BCPM")
-        )
-      } else if (input$dataTable == "Titanic") {
-        updateSelectInput(
-          session = session,
-          inputId = "xVar",
-          label = "Select quantitative predictor, X",
-          choices = c("Age")
-        )
-      } else if (input$dataTable == "Leukemia") {
-        updateSelectInput(
-          session = session,
-          inputId = "xVar",
-          label = "Select quantitative predictor, X",
-          choices = c("Blasts", "Age", "Infil")
-        )
-      }
-    }
-  )
-
-  ## Processing sign ----
-  observeEvent(
-    eventExpr = input$goButtonMul,
-    handlerExpr = {
-      withBusyIndicatorServer(
-        "goButtonMul",
-        {Sys.sleep(1)}
-      )
-    }
-  )
-
-  observeEvent(
-    eventExpr = input$goButtonMul,
-    handlerExpr = {
-      withBusyIndicatorServer(
-        "goToGameButton",
-        {Sys.sleep(1)}
-      )
-    }
-  )
-
-  observeEvent(
-    eventExpr = input$goButtonMul,
-    handlerExpr = {
-      withBusyIndicatorServer(
-        "go2Button",
-        {Sys.sleep(1)}
-      )
-    }
-  )
-
-  observeEvent(
+  ### Create data for logistic plot ----
+  logisticData <- eventReactive(
     eventExpr = input$newSample,
-    handlerExpr = {
-      withBusyIndicatorServer(
-        "newSample",
-        {Sys.sleep(1)}
-      )
-    }
-  )
-
-  ## Plot outputs ----
-  df <- function(b0, b1, sampleSize) {
-    intercept <- as.numeric(b0)
-    bet <- as.numeric(b1)
-    x <- rnorm(as.numeric(sampleSize))
-    pr <- exp(x * bet) / (1 + exp(x * bet))
-    y <- rbinom(as.numeric(sampleSize), 1, pr)
-    df <- data.frame(x, y)
-    return(df)
-  }
-
-  commonDf <- reactiveVal(NULL)
-
-  observe(
-    x = {
-      if (is.null(commonDf())) {
-        commonDf(df(input$b0, input$b1, input$sampleSize))
+    valueExpr = {
+      if (input$newSample == 0) {
+        return(NULL)
+      } else {
+        x <- rnorm(n = input$sampleSize, mean = 0, sd = 1)
+        probSuccess <- exp(input$b0 + x * input$b1) / (1 + exp(input$b0 + x * input$b1))
+        y <- rbinom(n = input$sampleSize, size = 1, prob = probSuccess)
+        return(data.frame(x = x, y = y))
       }
-    }
+    },
+    ignoreNULL = FALSE
   )
 
-  observeEvent(
-    eventExpr = input$newSample,
-    handlerExpr = {
-      commonDf(df(input$b0, input$b1, input$sampleSize))
-      updateActionButton(
-        inputId = "newSample",
-        label = "New Sample",
-        icon = icon("retweet")
-      )
-    }
-  )
-  ## Logistic Plot ----
+  ### Logistic Plot ----
   output$logPlot <- renderPlot(
     expr = {
-      input$newSample
-      df <- isolate(commonDf())
+      validate(
+        need(expr = !is.null(logisticData()), message = "Generate a sample")
+      )
       p <- ggplot(
-        mapping = aes(x = x, y = y),
-        data = df
+        data = logisticData(),
+        mapping = aes(x = x, y = y)
       ) +
-        labs(
-          x = "Explanatory Variable",
-          y = "Observed Bernoulli",
-          title = "Logistic Regression Model \n"
-        ) +
-        theme_bw() +
-        theme(
-          legend.position = "bottom",
-          axis.title = element_text(size = 18),
-          plot.title = element_text(size = 18, face = "bold",hjust = 0.5),
-        ) +
-       geom_smooth(
+        geom_point() +
+        geom_smooth(
           formula = y ~ x,
           method = "glm",
           linewidth = 1.5,
           color = boastUtils::psuPalette[4],
           method.args = list(family = "binomial"),
           se = FALSE
+        ) +
+        labs(
+          x = "Explanatory Variable",
+          y = "Observed Bernoulli",
+          title = "Logistic Regression Model"
+        ) +
+        theme_bw(base_size = 20) +
+        theme(
+          legend.position = "bottom"
         )
+      #### Add confidence band
       if (input$showCI == TRUE) {
         p <- p + geom_ribbon(
           stat = "smooth",
@@ -712,7 +604,7 @@ server <- function(input, output, session) {
           formula = y ~ x
         )
       }
-      p <- p + geom_point()
+
       p
     },
     alt = reactive(
@@ -732,41 +624,49 @@ server <- function(input, output, session) {
     )
   )
 
+  ### Residual Plot ----
   output$residualPlot <- renderPlot(
     expr = {
-      input$newSample
-      df <- isolate(commonDf())
-      logit <- glm(
+      validate(
+        need(expr = !is.null(logisticData()), message = "Generate a sample")
+      )
+      logitModel <- glm(
         formula = y ~ x,
         family = "binomial",
-        data = df
+        data = logisticData()
       )
-      if (input$residualType == "Pearson") {
-        p <- plot(
-          residuals(logit, type = "pearson"),
-          type = "b",
-          main = "Pearson Res- logit",
-          ylab = "Pearson Residual",
-          cex.axis = 1.3,
-          cex.lab = 1.5,
-          cex.main = 1.5,
-          pch = 16,
-          las = 1
+      residuals <- data.frame(
+        resids = residuals(
+          object = logitModel,
+          type = ifelse(
+            test = input$residualType == "Pearson",
+            yes = "pearson",
+            no = "deviance"
+          )
         )
-      } else {
-        p <- plot(
-          residuals(logit, type = "deviance"),
-          type = "b",
-          main = "Deviance Res- logit",
-          ylab = "Deviance Residual",
-          cex.axis = 1.3,
-          cex.lab = 1.5,
-          cex.main = 1.5,
-          pch = 16,
-          las = 1
+      ) %>%
+        mutate(
+          index = row_number()
         )
-      }
-      p
+
+      ggplot(
+        data = residuals,
+        mapping = aes(x = index, y = resids)
+      ) +
+        geom_point() +
+        geom_path() +
+        theme_bw(base_size = 20) +
+        labs(
+          x = "Index",
+          y = paste(
+            ifelse(
+              test = input$residualType == "Pearson",
+              yes = "Pearson",
+              no = "Deviance"),
+            "Residual"
+          ),
+          title = "Residual-Logit"
+        )
     },
     alt = reactive(
       paste0(
@@ -783,47 +683,23 @@ server <- function(input, output, session) {
     )
   )
 
-## Implement rule for g ----
-  gRule <- function(sampleSize) {
-    if (sampleSize > 30) {
-      g <- 10
-    } else {
-      g <- floor(sampleSize/3)
-    }
-      return(g)
-  }
-
-  ## Goodness of fit ----
-  hlResult <- function() {
-    input$newSample
-    df <- isolate(commonDf())
-    mod <- glm(
-      formula = y ~ x,
-      data = df,
-      family = "binomial"
-    )
-    # g formula for function
-    hl <- hoslem.test(mod$y, fitted(mod), gRule(input$sampleSize))
-    return(hl)
-  }
-
+  ### H-L Test Table ----
   output$lemeshowDF <- DT::renderDT(
     expr = {
-      input$newSample
-      isolate(
-        expr =  {
-          hl <- hlResult()
-          hs <- data.frame(
-            round(hl$statistic, digits = 2),
-            round(hl$parameter, digits = 2),
-            round(hl$p.value, digits = 2)
-          )
-          names(hs) <- c("χ2", "df", "p-value")
-          hs
-        }
+      validate(
+        need(expr = !is.null(logisticData()), message = "Generate a sample")
+      )
+      hl <- hlResult(data = logisticData(), sampleSize = input$sampleSize)
+      data.frame(
+        X2 = round(hl$statistic, digits = 2),
+        df = round(hl$parameter, digits = 2),
+        `p-value` = round(hl$p.value, digits = 2)
       )
     },
+    caption = "Results of Hosmer & Lemeshow Test",
+    style = "bootstrap4",
     rownames = FALSE,
+    colnames = c("Chi-squared Value", "Degrees of Freedom", "P-value"),
     options = list(
       responsive = TRUE,
       scrollX = TRUE,
@@ -833,31 +709,30 @@ server <- function(input, output, session) {
       info = FALSE,
       columnDefs = list(
         list(className = "dt-center", targets = "_all")
-      )
+      ),
+      margin = "auto"
     )
   )
 
+  ### Obs-Exp by Bin Table ----
   output$obsexpDF <- DT::renderDT(
     expr = {
-      input$newSample
-      isolate(
-        expr =  {
-          hl <- hlResult()
-          hob <- data.frame(
-            cbind(
-              round(hl$expected, digits = 2),
-              round(hl$observed, digits = 2)
-            )
-          )
-          # hob <- setDT(hob, keep.rownames = TRUE)[]
-          colnames(hob) <- c(
-            "interval", "number of 0s expected", "number of 1s expected",
-            "number of 0s in group", "number of 1s in group"
-          )
-          hob
-        }
+      validate(
+        need(expr = !is.null(logisticData()), message = "Generate a sample")
+      )
+      hl <- hlResult(data = logisticData(), sampleSize = input$sampleSize)
+      hob <- as.data.frame(
+        round(cbind(testHL$expected, testHL$observed), digits = 2)
+      )
+      cbind(
+        "gBins" = rownames(hob),
+        data.frame(hob, row.names = NULL)
       )
     },
+    style = "bootstrap4",
+    caption = "Observed and Expected Frequncies by Bin",
+    rownames = FALSE,
+    colnames = c("Bin", "Exp. Failure", "Exp. Success", "Obs. Failure", "Obs. Success"),
     options = list(
       responsive = TRUE,
       scrollX = TRUE,
@@ -866,20 +741,67 @@ server <- function(input, output, session) {
       ordering = FALSE,
       info = FALSE,
       columnDefs = list(
-        list(className = "dt-center", targets = "_all")
+        list(className = "dt-center", targets = c(1:4))
       )
     )
   )
 
-  ## Set the Data Collection ----
-  dataCollection <- eventReactive(
+  ## Explore Empirical Logit Plot ----
+  dataCollection <- reactiveVal(value = NULL, label = "Empirical Data")
+  ### Respond to Data Selection ----
+  observeEvent(
     eventExpr = input$dataTable,
-    valueExpr = {
-      switch(
-        EXPR = input$dataTable,
-        MedGPA = MedGPA,
-        Titanic = Titanic,
-        Leukemia = Leukemia
+    handlerExpr = {
+      #### Update Response Options ----
+      if (input$dataTable == 'MedGPA') {
+        updateSelectInput(
+          session = session,
+          inputId = "yVar",
+          choices = c("Acceptance")
+        )
+      } else if (input$dataTable == "Titanic") {
+        updateSelectInput(
+          session = session,
+          inputId = "yVar",
+          choices = c("Survived")
+        )
+      } else if (input$dataTable == "Leukemia") {
+        updateSelectInput(
+          session = session,
+          inputId = "yVar",
+          choices = c("Status")
+        )
+      }
+
+      #### Update Predictor Options ----
+      if (input$dataTable == 'MedGPA') {
+        updateSelectInput(
+          session = session,
+          inputId = "xVar",
+          choices = c("GPA", "MCAT", "BCPM")
+        )
+      } else if (input$dataTable == "Titanic") {
+        updateSelectInput(
+          session = session,
+          inputId = "xVar",
+          choices = c("Age")
+        )
+      } else if (input$dataTable == "Leukemia") {
+        updateSelectInput(
+          session = session,
+          inputId = "xVar",
+          choices = c("Blasts", "Age", "Infil")
+        )
+      }
+
+      #### Update data collection ----
+      dataCollection(
+        switch(
+          EXPR = input$dataTable,
+          MedGPA = MedGPA,
+          Titanic = Titanic,
+          Leukemia = Leukemia
+        )
       )
     }
   )
@@ -893,11 +815,11 @@ server <- function(input, output, session) {
           validate(
             need(
               input$yVar %in% names(dataCollection()),
-              message = "No Y var"
+              message = "Response not in data"
             ),
             need(
               input$xVar %in% names(dataCollection()),
-              message = "No X var"
+              message = "Predictor not in data"
             )
           )
           breaks <- quantile(
@@ -913,9 +835,9 @@ server <- function(input, output, session) {
             right = FALSE
           )
           tempData <- cbind(
-              dataCollection(),
-              xGroups = xGroups
-            )
+            dataCollection(),
+            xGroups = xGroups
+          )
           empLogitData <- tempData %>%
             dplyr::group_by(xGroups) %>%
             summarize(
@@ -937,12 +859,11 @@ server <- function(input, output, session) {
               method = "lm",
               se = FALSE
             ) +
-            theme_bw() +
-            ylab(paste0("Log Odds(", input$yVar, ")")) +
-            xlab(input$xVar) +
-            ggtitle("Empirical Logit Plot") +
-            theme(
-              text = element_text(size = 16)
+            theme_bw(base_size = 20) +
+            labs(
+              y = paste0("Log Odds(", input$yVar, ")"),
+              x = input$xVar,
+              title = "Empirical Logit Plot"
             )
         },
         alt = paste0(
@@ -956,9 +877,10 @@ server <- function(input, output, session) {
         )
       )
     }
- )
+  )
 
-  ## Timer for Dice and Success ----
+  ## Game Code ----
+  ### Timer for Dice and Success ----
   timer <- reactiveVal(1)
   active <- reactiveVal(FALSE)
 
@@ -1091,10 +1013,7 @@ server <- function(input, output, session) {
   # Pulls corresponding answer values from question bank and returns its text
   # bank for question
 
-  bank <- read.csv("questionbank.csv")
-  bank <- data.frame(lapply(bank, as.character), stringsAsFactors = FALSE)
-  bank$Feedback <- as.character(bank$Feedback)
-  sapply(bank, class)
+
 
   getResponseText <- function(index, answer) {
     if (answer == "A") {
