@@ -9,6 +9,10 @@ library(shinyBS)
 library(shinydashboard)
 library(shinyWidgets)
 
+# Global Constants ----
+MAXTRIES <- 10
+TARGETSCORE <- 20
+
 # Load Data ----
 ## Coming from the Stat2Data package
 data("MedGPA")
@@ -332,10 +336,11 @@ ui <- dashboardPage(
       ## Game page ----
       tabItem(
         tabName = "game",
+        withMathJax(),
         h2("Game Section"),
-        p("Answer the questions below and reach a score of at least 20 within 10
-          questions to win! Your score for each correct answer is determined by
-          the roll of a die."),
+        p("Answer the questions below and reach a score of at least", TARGETSCORE,
+          "within", MAXTRIES, "questions to win! Your score for each correct
+          answer is determined by the roll of a die."),
         fluidRow(
           column(
             width = 6,
@@ -377,6 +382,51 @@ ui <- dashboardPage(
             uiOutput(outputId = "gameScore"),
             uiOutput(outputId = "dice", align = "center")
           )
+        ),
+        hr(),
+        ### NEW layout----
+        h2("New Layout"),
+        fluidRow(
+          column(
+            width = 8,
+            offset = 0,
+            uiOutput(outputId = "questionText"),
+            uiOutput(outputId = "additionalItems"),
+            selectInput(
+              inputId = "userChoice",
+              label = "Your answer",
+              choices = c("Select an option", "A", "B", "C")
+            ),
+            bsButton(
+              inputId = "submitNew",
+              label = "Submit",
+              size = "large"
+            ),
+          ),
+          column(
+            width = 4,
+            offset = 0,
+            p("score mark"),
+            uiOutput(outputId = "scoreMark"),
+            p("feedback text"),
+            uiOutput(outputId = "feedbackNew"),
+            p("Die Image"),
+            uiOutput(outputId = "dieRoll"),
+            uiOutput(outputId = "playerScore"),
+            uiOutput(outputId = "questionCounter")
+          )
+        ),
+        bsButton(
+          inputId = "nextQuestionNew",
+          label = "Next question",
+          size = "large"
+        ),
+        bsButton(
+          inputId = "reset",
+          label = "Restart",
+          icon = icon("triangle-exclamation"),
+          style = "danger",
+          size = "large"
         )
       ),
       ## References page ----
@@ -850,8 +900,13 @@ server <- function(input, output, session) {
 
   ## Game Code ----
   ### Key Variables ----
+  playerBank <- reactiveVal(
+    value = bank[sample(x = 1:nrow(bank), size = nrow(bank), replace = FALSE), ]
+  )
   score <- reactiveVal(0)
   questionCount <- reactiveVal(1)
+
+
   value <- reactiveValues(index = 1, mistake = 0, correct = 0)
   ans <- as.matrix(bank[1:16, 6])
   indexList <- reactiveValues(list = sample(1:16, 10, replace = FALSE))
@@ -859,6 +914,75 @@ server <- function(input, output, session) {
   ### Question Display ----
   #### Additional Graphs
   #### Select Answer
+
+  ### Question Display NEW----
+  observeEvent(
+    eventExpr = questionCount(),
+    handlerExpr = {
+      #### Text
+      output$questionText <- renderUI(
+        expr = {
+          p(class = "largerFont", playerBank()$question[questionCount()])
+        }
+      )
+
+      #### Additional Elements
+      if (playerBank()$responses[questionCount()] == "graph") {
+        output$additionalItems <- renderUI(
+          expr = {
+            tagList(
+              tags$figure(
+                tags$figcaption(tags$strong("Graph A")),
+                tags$img(
+                  src = playerBank()$A[questionCount()],
+                  alt = "TBA",
+                  width = "50%"
+                )
+              ),
+              br(),
+              tags$figure(
+                tags$figcaption(tags$strong("Graph B")),
+                tags$img(
+                  src = playerBank()$B[questionCount()],
+                  alt = "TBA",
+                  width = "50%"
+                )
+              )
+            )
+          }
+        )
+      } else {
+        output$additionalItems <- renderUI({NULL})
+      }
+
+      if (playerBank()$responses[questionCount()] == "graph") {
+        currentChoices <- c("Select an option", "Graph A", "Graph B")
+      } else if (playerBank()$responses[questionCount()] == "logical") {
+        currentChoices <- c("Select an Option", "True", "False")
+      } else {
+        currentChoices <- c(
+          "Select an Option",
+          sample(
+            x = c(
+              playerBank()$A[questionCount()],
+              playerBank()$B[questionCount()],
+              playerBank()$C[questionCount()]
+            ),
+            size = 3,
+            replace = FALSE
+          )
+        )
+      }
+
+      #### Update Choices
+      updateSelectInput(
+        session = session,
+        inputId = "userChoice",
+        choices = currentChoices
+      )
+    }
+  )
+
 
   #### Question Number ----
   output$questNum <- renderUI(
@@ -1085,6 +1209,20 @@ server <- function(input, output, session) {
   output$gameScore <- renderUI(
     expr = {
       p(class = "largerFont", "Your cumulative score:", score())
+    }
+  )
+
+  ### Game Results Displays ----
+  output$playerScore <- renderUI(
+    expr = {
+      p(class = "largerFont", "Your cumulative score:", score())
+    }
+  )
+
+  output$questionCounter <- renderUI(
+    expr = {
+      p(class = "largerFont", "You've attempted", questionCount(), "of",
+        MAXTRIES, "questions.")
     }
   )
 
