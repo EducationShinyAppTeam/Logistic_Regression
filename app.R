@@ -591,22 +591,15 @@ server <- function(input, output, session) {
           formula = y ~ x
         )
       }
-
       p
     },
     alt = reactive(
       paste0(
         "This logistic plot ",
-        if (input$b1 > 0) {
-          "displays a negative slope. "
-        } else if (input$b1 < 0) {
+        if (input$b1 > 0) {"displays a negative slope. "} else if (input$b1 < 0) {
           "displays a positive slope. "
-        } else {
-          "displays a slope of 0. "
-        },
-        "And, there are ",
-        input$sampleSize,
-        " points with Observed Bernoulli of either 0 or 1"
+        } else {"displays a slope of 0. "},
+        "There are ", input$sampleSize, " points that are either 0 or 1."
       )
     )
   )
@@ -657,14 +650,7 @@ server <- function(input, output, session) {
     },
     alt = reactive(
       paste0(
-        "This ",
-        if (input$residualType == "Pearson") {
-          "pearson"
-        } else {
-          "deviance"
-        },
-        " plot displays ",
-        input$sampleSize,
+        "This ", input$residualType, " Residual plot displays ", input$sampleSize,
         " points whose residuals appear to fall randomly around 0."
       )
     )
@@ -709,7 +695,7 @@ server <- function(input, output, session) {
       )
       hl <- hlResult(data = logisticData(), sampleSize = input$sampleSize)
       hob <- as.data.frame(
-        round(cbind(testHL$expected, testHL$observed), digits = 2)
+        round(cbind(hl$expected, hl$observed), digits = 2)
       )
       cbind(
         "gBins" = rownames(hob),
@@ -854,13 +840,9 @@ server <- function(input, output, session) {
             )
         },
         alt = paste0(
-          "This Empirical logit plot displays the relationship between Log Odds(",
-          input$yVar,
-          ") and ",
-          input$xVar,
-          ", along with ",
-          input$ngroups,
-          " intervals on the plot."
+          "This Empirical logit plot displays the relationship between the
+          Log Odds(", input$yVar, ") and ", input$xVar, ", along with ",
+          input$ngroups, " intervals on the plot."
         )
       )
     }
