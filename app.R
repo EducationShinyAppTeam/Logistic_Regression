@@ -3,15 +3,11 @@ library(boastUtils)
 library(ggplot2)
 library(DT)
 library(dplyr)
-# library(shinycssloaders)
 library(Stat2Data)
 library(ResourceSelection)
-# library(data.table)
 library(shinyBS)
 library(shinydashboard)
 library(shinyWidgets)
-# library(shinyjs)
-# library(withr)
 
 # Load Data ----
 ## Coming from the Stat2Data package
@@ -44,8 +40,6 @@ hlResult <- function(data, sampleSize) {
   hl <- hoslem.test(mod$y, fitted(mod), gRule(sampleSize))
   return(hl)
 }
-## Is this needed?
-# source("helpers.R")
 
 # Define UI for App ----
 ui <- dashboardPage(
@@ -542,13 +536,6 @@ server <- function(input, output, session) {
   )
 
   ## Explore Simple Logistic Regression ----
-  # observeEvent(
-  #   eventExpr = input$newSample,
-  #   handlerExpr = {
-  #     commonDf(df(input$b0, input$b1, input$sampleSize))
-  #   }
-  # )
-
   ### Create data for logistic plot ----
   logisticData <- eventReactive(
     eventExpr = input$newSample,
